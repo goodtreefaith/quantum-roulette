@@ -2837,4 +2837,244 @@ export const stages: StageDef[] = [
       },
     ],
   },
+  {
+    title: 'Quantum Chamber',
+    goalY: 95,
+    zoomY: 90,
+    entities: [
+      // Left main wall
+      {
+        type: 'static',
+        position: { x: 0, y: 0 },
+        props: { density: 1, angularVelocity: 0, restitution: 0 },
+        shape: {
+          type: 'polyline',
+          rotation: 0,
+          points: [
+            [5, -300],
+            [5, 20],
+            [8, 25],
+            [8, 40],
+            [6, 45],
+            [6, 60],
+            [9, 65],
+            [9, 85],
+            [6, 90],
+            [6, 95],
+            [5, 100]
+          ],
+        },
+      },
+      // Right main wall
+      {
+        type: 'static',
+        position: { x: 0, y: 0 },
+        props: { density: 1, angularVelocity: 0, restitution: 0 },
+        shape: {
+          type: 'polyline',
+          rotation: 0,
+          points: [
+            [21, -300],
+            [21, 20],
+            [18, 25],
+            [18, 40],
+            [20, 45],
+            [20, 60],
+            [17, 65],
+            [17, 85],
+            [20, 90],
+            [20, 95],
+            [21, 100]
+          ],
+        },
+      },
+      // Quantum energy orbs (bouncy circles with glow)
+      {
+        type: 'static',
+        position: { x: 9, y: 30 },
+        shape: { type: 'circle', radius: 0.8, color: '#00ffff', bloomColor: '#00ffff' },
+        props: { density: 1, angularVelocity: 0, restitution: 2.0, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 17, y: 30 },
+        shape: { type: 'circle', radius: 0.8, color: '#ff0080', bloomColor: '#ff0080' },
+        props: { density: 1, angularVelocity: 0, restitution: 2.0, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 13, y: 35 },
+        shape: { type: 'circle', radius: 1.0, color: '#8000ff', bloomColor: '#8000ff' },
+        props: { density: 1, angularVelocity: 0, restitution: 2.2, life: 1 },
+      },
+      // Floating quantum platforms (kinematic)
+      {
+        type: 'kinematic',
+        position: { x: 10, y: 50 },
+        props: { density: 1, angularVelocity: 2, restitution: 0 },
+        shape: { type: 'box', width: 3, height: 0.2, rotation: 0, color: '#00ff80', bloomColor: '#00ff80' },
+      },
+      {
+        type: 'kinematic',
+        position: { x: 16, y: 50 },
+        props: { density: 1, angularVelocity: -2, restitution: 0 },
+        shape: { type: 'box', width: 3, height: 0.2, rotation: 0, color: '#ff4444', bloomColor: '#ff4444' },
+      },
+      // Energy barriers (small rotating boxes)
+      {
+        type: 'kinematic',
+        position: { x: 8, y: 15 },
+        props: { density: 1, angularVelocity: 5, restitution: 0.5 },
+        shape: { type: 'box', width: 0.3, height: 1.5, rotation: 0, color: '#00ffff' },
+      },
+      {
+        type: 'kinematic',
+        position: { x: 13, y: 15 },
+        props: { density: 1, angularVelocity: -5, restitution: 0.5 },
+        shape: { type: 'box', width: 0.3, height: 1.5, rotation: 0, color: '#ff0080' },
+      },
+      {
+        type: 'kinematic',
+        position: { x: 18, y: 15 },
+        props: { density: 1, angularVelocity: 5, restitution: 0.5 },
+        shape: { type: 'box', width: 0.3, height: 1.5, rotation: 0, color: '#8000ff' },
+      },
+      // Quantum particle field (small glowing circles)
+      {
+        type: 'static',
+        position: { x: 7, y: 25 },
+        shape: { type: 'circle', radius: 0.2, color: '#00ffff', bloomColor: '#00ffff' },
+        props: { density: 1, angularVelocity: 0, restitution: 1.8, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 10, y: 23 },
+        shape: { type: 'circle', radius: 0.2, color: '#ff0080', bloomColor: '#ff0080' },
+        props: { density: 1, angularVelocity: 0, restitution: 1.8, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 13, y: 25 },
+        shape: { type: 'circle', radius: 0.2, color: '#8000ff', bloomColor: '#8000ff' },
+        props: { density: 1, angularVelocity: 0, restitution: 1.8, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 16, y: 23 },
+        shape: { type: 'circle', radius: 0.2, color: '#00ff80', bloomColor: '#00ff80' },
+        props: { density: 1, angularVelocity: 0, restitution: 1.8, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 19, y: 25 },
+        shape: { type: 'circle', radius: 0.2, color: '#ffaa00', bloomColor: '#ffaa00' },
+        props: { density: 1, angularVelocity: 0, restitution: 1.8, life: 1 },
+      },
+      // Central quantum core (large rotating element)
+      {
+        type: 'kinematic',
+        position: { x: 13, y: 42 },
+        props: { density: 1, angularVelocity: 1, restitution: 0.3 },
+        shape: { type: 'box', width: 4, height: 0.5, rotation: 0, color: '#ffffff', bloomColor: '#ffffff' },
+      },
+      // Teleporter rings (polyline hexagons)
+      {
+        type: 'static',
+        position: { x: 9, y: 65 },
+        props: { density: 1, angularVelocity: 0, restitution: 1.0 },
+        shape: {
+          type: 'polyline',
+          rotation: 0,
+          points: [
+            [1, 0],
+            [0.5, 0.8],
+            [-0.5, 0.8],
+            [-1, 0],
+            [-0.5, -0.8],
+            [0.5, -0.8],
+            [1, 0]
+          ],
+          color: '#00ffff',
+          bloomColor: '#00ffff'
+        },
+      },
+      {
+        type: 'static',
+        position: { x: 17, y: 65 },
+        props: { density: 1, angularVelocity: 0, restitution: 1.0 },
+        shape: {
+          type: 'polyline',
+          rotation: 0,
+          points: [
+            [1, 0],
+            [0.5, 0.8],
+            [-0.5, 0.8],
+            [-1, 0],
+            [-0.5, -0.8],
+            [0.5, -0.8],
+            [1, 0]
+          ],
+          color: '#ff0080',
+          bloomColor: '#ff0080'
+        },
+      },
+      // Lower quantum field
+      {
+        type: 'static',
+        position: { x: 8, y: 75 },
+        shape: { type: 'circle', radius: 0.3, color: '#00ffff', bloomColor: '#00ffff' },
+        props: { density: 1, angularVelocity: 0, restitution: 2.5, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 11, y: 77 },
+        shape: { type: 'circle', radius: 0.3, color: '#ff0080', bloomColor: '#ff0080' },
+        props: { density: 1, angularVelocity: 0, restitution: 2.5, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 15, y: 77 },
+        shape: { type: 'circle', radius: 0.3, color: '#8000ff', bloomColor: '#8000ff' },
+        props: { density: 1, angularVelocity: 0, restitution: 2.5, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 18, y: 75 },
+        shape: { type: 'circle', radius: 0.3, color: '#00ff80', bloomColor: '#00ff80' },
+        props: { density: 1, angularVelocity: 0, restitution: 2.5, life: 1 },
+      },
+      // Final gauntlet - narrow passage with obstacles
+      {
+        type: 'kinematic',
+        position: { x: 10, y: 85 },
+        props: { density: 1, angularVelocity: 8, restitution: 0 },
+        shape: { type: 'box', width: 0.8, height: 0.1, rotation: 0, color: '#ff4444' },
+      },
+      {
+        type: 'kinematic',
+        position: { x: 16, y: 85 },
+        props: { density: 1, angularVelocity: -8, restitution: 0 },
+        shape: { type: 'box', width: 0.8, height: 0.1, rotation: 0, color: '#ff4444' },
+      },
+      // Goal zone enhancers
+      {
+        type: 'static',
+        position: { x: 8, y: 93 },
+        shape: { type: 'circle', radius: 0.4, color: '#ffffff', bloomColor: '#ffffff' },
+        props: { density: 1, angularVelocity: 0, restitution: 3.0, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 13, y: 93 },
+        shape: { type: 'circle', radius: 0.5, color: '#00ffff', bloomColor: '#00ffff' },
+        props: { density: 1, angularVelocity: 0, restitution: 3.0, life: 1 },
+      },
+      {
+        type: 'static',
+        position: { x: 18, y: 93 },
+        shape: { type: 'circle', radius: 0.4, color: '#ffffff', bloomColor: '#ffffff' },
+        props: { density: 1, angularVelocity: 0, restitution: 3.0, life: 1 },
+      },
+    ],
+  },
 ];
