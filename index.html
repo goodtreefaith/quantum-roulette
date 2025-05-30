@@ -144,6 +144,66 @@
       pointer-events: none;
     }
 
+    /* Minimized settings panel */
+    #settings.minimized {
+      position: fixed;
+      bottom: 0.5rem;
+      right: 0.5rem;
+      left: auto;
+      max-width: 250px;
+      width: auto;
+      margin: 0;
+      padding: 0.8rem;
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: all;
+      backdrop-filter: blur(15px);
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid var(--neon-cyan);
+      z-index: 1000;
+    }
+
+    #settings.minimized .settings-content {
+      display: none;
+    }
+
+    #settings.minimized .settings-header {
+      margin-bottom: 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #settings.minimized .settings-title {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    #settings.minimized .settings-subtitle {
+      font-size: 0.6rem;
+      margin-bottom: 0;
+    }
+
+    #settings.minimized:hover {
+      transform: scale(1.05);
+      box-shadow: 
+        0 10px 40px rgba(0, 255, 255, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    /* Expand button for minimized settings */
+    .expand-hint {
+      display: none;
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 0.5rem;
+      opacity: 0.7;
+    }
+
+    #settings.minimized .expand-hint {
+      display: block;
+    }
+
     .settings-header {
       text-align: center;
       margin-bottom: 1rem;
@@ -1089,7 +1149,13 @@
         'value': window.roullete.getCount(),
       });
       window.roullete.start();
-      document.querySelector('#settings').classList.add('hide');
+      
+      // Minimize settings panel instead of hiding completely
+      const settingsPanel = document.querySelector('#settings');
+      settingsPanel.classList.remove('hide');
+      settingsPanel.classList.add('minimized');
+      
+      // Hide donate panel
       document.querySelector('#donate').classList.add('hide');
     });
 
@@ -1177,9 +1243,15 @@
       
       // Original functionality - show settings after delay if modal is closed
       setTimeout(() => {
-        if (document.querySelector('#winnerModal').style.display === 'none') {
-          document.querySelector('#settings').classList.remove('hide');
-          document.querySelector('#donate').classList.remove('hide');
+        const modal = document.querySelector('#winnerModal');
+        const settings = document.querySelector('#settings');
+        const donate = document.querySelector('#donate');
+        
+        if (modal && modal.style.display === 'none') {
+          // Restore settings panel to full view after game ends
+          settings.classList.remove('hide');
+          settings.classList.remove('minimized');
+          donate.classList.remove('hide');
         }
       }, 5000);
     });
@@ -1258,7 +1330,9 @@
         hideWinnerModal();
         
         setTimeout(() => {
-          document.querySelector('#settings').classList.remove('hide');
+          const settings = document.querySelector('#settings');
+          settings.classList.remove('hide');
+          settings.classList.remove('minimized');
           document.querySelector('#donate').classList.remove('hide');
         }, 500);
       });
@@ -1273,7 +1347,9 @@
         hideWinnerModal();
         
         setTimeout(() => {
-          document.querySelector('#settings').classList.remove('hide');
+          const settings = document.querySelector('#settings');
+          settings.classList.remove('hide');
+          settings.classList.remove('minimized');
           document.querySelector('#donate').classList.remove('hide');
         }, 500);
       });
@@ -1288,7 +1364,9 @@
         hideWinnerModal();
         
         setTimeout(() => {
-          document.querySelector('#settings').classList.remove('hide');
+          const settings = document.querySelector('#settings');
+          settings.classList.remove('hide');
+          settings.classList.remove('minimized');
           document.querySelector('#donate').classList.remove('hide');
         }, 500);
       });
@@ -1306,9 +1384,38 @@
           hideWinnerModal();
           
           setTimeout(() => {
-            document.querySelector('#settings').classList.remove('hide');
+            const settings = document.querySelector('#settings');
+            settings.classList.remove('hide');
+            settings.classList.remove('minimized');
             document.querySelector('#donate').classList.remove('hide');
           }, 500);
+        }
+      });
+    }
+
+    // Settings panel expand/minimize functionality
+    const settingsPanel = document.querySelector('#settings');
+    const settingsHeader = document.querySelector('.settings-header');
+    
+    if (settingsHeader && settingsPanel) {
+      settingsHeader.addEventListener('click', () => {
+        if (settingsPanel.classList.contains('minimized')) {
+          console.log('📈 Expanding settings panel');
+          settingsPanel.classList.remove('minimized');
+          settingsPanel.classList.remove('hide');
+          
+          // Add entrance animation
+          if (window.animations) {
+            window.animations.slideIn(settingsPanel, 'bottom', 400);
+          }
+        }
+      });
+
+      // Add double-click to minimize when expanded during game
+      settingsHeader.addEventListener('dblclick', () => {
+        if (!settingsPanel.classList.contains('minimized') && !settingsPanel.classList.contains('hide')) {
+          console.log('📉 Minimizing settings panel');
+          settingsPanel.classList.add('minimized');
         }
       });
     }
@@ -1526,6 +1633,7 @@
   <div class="settings-header">
     <h1 class="settings-title">QUANTUM ROULETTE</h1>
     <p class="settings-subtitle">Future Gaming Experience</p>
+    <div class="expand-hint">Click to expand settings</div>
   </div>
   
   <div class="settings-content">
