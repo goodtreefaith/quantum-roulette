@@ -583,21 +583,6 @@
       color: var(--neon-pink);
     }
 
-    /* Donation section */
-    #donate {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      z-index: 998;
-      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    #donate.hide {
-      transform: translateX(100px);
-      opacity: 0;
-      pointer-events: none;
-    }
-
     /* Copyright */
     .copyright {
       position: fixed;
@@ -645,11 +630,6 @@
 
       #inGame {
         top: 1rem;
-        right: 1rem;
-      }
-
-      #donate {
-        bottom: 1rem;
         right: 1rem;
       }
 
@@ -1015,23 +995,15 @@
       return;
     }
     
+    console.log('📍 Current modal display:', modal.style.display);
+    
+    // Force hide the modal immediately
+    modal.style.display = 'none';
+    console.log('🎭 Modal hidden directly');
+    
+    // Optional: Add fade effect if animations are available and enabled
     if (window.animations && window.options?.enableAnimations) {
-      console.log('✨ Using animation to hide modal');
-      const content = document.querySelector('.winner-content');
-      if (content) {
-        window.animations.fadeOut(content).then(() => {
-          modal.style.display = 'none';
-          console.log('🎭 Modal hidden with animation');
-        });
-      } else {
-        // Fallback if content not found
-        modal.style.display = 'none';
-        console.log('🎭 Modal hidden (no content element)');
-      }
-    } else {
-      console.log('⚡ Hiding modal without animation');
-      modal.style.display = 'none';
-      console.log('🎭 Modal hidden');
+      console.log('✨ Animation system available but modal already hidden');
     }
   }
 
@@ -1154,9 +1126,6 @@
       const settingsPanel = document.querySelector('#settings');
       settingsPanel.classList.remove('hide');
       settingsPanel.classList.add('minimized');
-      
-      // Hide donate panel
-      document.querySelector('#donate').classList.add('hide');
     });
 
     // Enhanced toggle handling
@@ -1220,7 +1189,6 @@
         setTimeout(() => {
           removeWinnerFromList(winnerName);
           document.querySelector('#settings').classList.remove('hide');
-          document.querySelector('#donate').classList.remove('hide');
         }, 2000);
         return;
       }
@@ -1237,7 +1205,6 @@
         // Skip modal, go straight to showing settings
         setTimeout(() => {
           document.querySelector('#settings').classList.remove('hide');
-          document.querySelector('#donate').classList.remove('hide');
         }, 3000);
       }
       
@@ -1245,13 +1212,11 @@
       setTimeout(() => {
         const modal = document.querySelector('#winnerModal');
         const settings = document.querySelector('#settings');
-        const donate = document.querySelector('#donate');
         
         if (modal && modal.style.display === 'none') {
           // Restore settings panel to full view after game ends
           settings.classList.remove('hide');
           settings.classList.remove('minimized');
-          donate.classList.remove('hide');
         }
       }, 5000);
     });
@@ -1280,18 +1245,6 @@
       mapSelector.style.borderColor = 'var(--neon-cyan)';
       setTimeout(() => mapSelector.style.borderColor = '', 1000);
     });
-
-    const checkDonateButtonLoaded = () => {
-      const btn = document.querySelector('span.bmc-btn-text');
-      if (!btn) {
-        setTimeout(checkDonateButtonLoaded, 100);
-      } else {
-        console.log('donation button loaded');
-        btn.setAttribute('data-trans', '');
-        window.translateElement && window.translateElement(btn);
-      }
-    };
-    setTimeout(checkDonateButtonLoaded, 100);
 
     const currentNotice = 1;
     const noticeKey = 'lastViewedNotification';
@@ -1323,52 +1276,79 @@
     const continueBtn = document.querySelector('#btnContinue');
 
     if (removeBtn) {
-      removeBtn.addEventListener('click', () => {
+      removeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         console.log('🗑️ Remove winner button clicked');
+        
+        // Immediately hide modal
+        const modal = document.querySelector('#winnerModal');
+        if (modal) modal.style.display = 'none';
+        
+        // Execute remove action
         if (window.animations) window.animations.buttonClick(removeBtn);
         removeWinnerFromList(lastWinnerName);
-        hideWinnerModal();
         
+        // Restore settings panel
         setTimeout(() => {
           const settings = document.querySelector('#settings');
-          settings.classList.remove('hide');
-          settings.classList.remove('minimized');
-          document.querySelector('#donate').classList.remove('hide');
-        }, 500);
+          if (settings) {
+            settings.classList.remove('hide');
+            settings.classList.remove('minimized');
+          }
+        }, 300);
       });
     } else {
       console.error('❌ Remove winner button not found');
     }
 
     if (keepBtn) {
-      keepBtn.addEventListener('click', () => {
+      keepBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         console.log('🔄 Keep winner button clicked');
-        if (window.animations) window.animations.buttonClick(keepBtn);
-        hideWinnerModal();
         
+        // Immediately hide modal
+        const modal = document.querySelector('#winnerModal');
+        if (modal) modal.style.display = 'none';
+        
+        // Execute keep action
+        if (window.animations) window.animations.buttonClick(keepBtn);
+        
+        // Restore settings panel
         setTimeout(() => {
           const settings = document.querySelector('#settings');
-          settings.classList.remove('hide');
-          settings.classList.remove('minimized');
-          document.querySelector('#donate').classList.remove('hide');
-        }, 500);
+          if (settings) {
+            settings.classList.remove('hide');
+            settings.classList.remove('minimized');
+          }
+        }, 300);
       });
     } else {
       console.error('❌ Keep winner button not found');
     }
 
     if (continueBtn) {
-      continueBtn.addEventListener('click', () => {
+      continueBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         console.log('▶️ Continue button clicked');
-        if (window.animations) window.animations.buttonClick(continueBtn);
-        hideWinnerModal();
         
+        // Immediately hide modal
+        const modal = document.querySelector('#winnerModal');
+        if (modal) modal.style.display = 'none';
+        
+        // Execute continue action
+        if (window.animations) window.animations.buttonClick(continueBtn);
+        
+        // Restore settings panel
         setTimeout(() => {
           const settings = document.querySelector('#settings');
-          settings.classList.remove('hide');
-          settings.classList.remove('minimized');
-          document.querySelector('#donate').classList.remove('hide');
-        }, 500);
+          if (settings) {
+            settings.classList.remove('hide');
+            settings.classList.remove('minimized');
+          }
+        }, 300);
       });
     } else {
       console.error('❌ Continue button not found');
@@ -1381,14 +1361,18 @@
         // Only close if clicking the backdrop (not the modal content)
         if (e.target === winnerModal) {
           console.log('🖱️ Modal backdrop clicked - closing modal');
-          hideWinnerModal();
           
+          // Immediately hide modal
+          winnerModal.style.display = 'none';
+          
+          // Restore settings panel
           setTimeout(() => {
             const settings = document.querySelector('#settings');
-            settings.classList.remove('hide');
-            settings.classList.remove('minimized');
-            document.querySelector('#donate').classList.remove('hide');
-          }, 500);
+            if (settings) {
+              settings.classList.remove('hide');
+              settings.classList.remove('minimized');
+            }
+          }, 300);
         }
       });
     }
@@ -1420,6 +1404,31 @@
       });
     }
   }
+
+  // Debug functions for testing (add to window for console access)
+  window.debugModal = {
+    show: (winnerName = 'Test Winner') => {
+      console.log('🧪 Debug: Showing winner modal');
+      showWinnerModal(winnerName);
+    },
+    hide: () => {
+      console.log('🧪 Debug: Hiding winner modal');
+      const modal = document.querySelector('#winnerModal');
+      if (modal) {
+        modal.style.display = 'none';
+        console.log('✅ Modal hidden successfully');
+      } else {
+        console.error('❌ Modal not found');
+      }
+    },
+    checkButtons: () => {
+      const buttons = ['#btnRemoveWinner', '#btnKeepWinner', '#btnContinue'];
+      buttons.forEach(selector => {
+        const btn = document.querySelector(selector);
+        console.log(`${selector}: ${btn ? '✅ Found' : '❌ Not found'}`);
+      });
+    }
+  };
 
   // Advanced Settings Modal Management
   function initializeAdvancedSettings() {
@@ -1874,13 +1883,6 @@
   display: none;
 "></div>
 
-<div id="donate" class="holo-panel">
-  <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
-          data-name="bmc-button" data-slug="lazygyu" data-color="#00ffff" data-emoji=""
-          data-font="Arial" data-text="Support Quantum" data-outline-color="#00ffff" data-font-color="#000000"
-          data-coffee-color="#ffffff"></script>
-</div>
-
 <div id="inGame" class="holo-panel hide">
   <button id="btnShake" data-trans>QUANTUM SHAKE!</button>
 </div>
@@ -1892,7 +1894,7 @@
       <p>This quantum roulette system is free and open for unlimited use.</p>
       <p>The creator places no restrictions on usage, including broadcasts, video creation, or commercial applications. Use freely.</p>
       <p>However, impersonating the copyright holder is a criminal violation of copyright law.</p>
-      <p>If you encounter or experience copyright holder impersonation claims, please report to <a href="mailto:lazygyu+legal@gmail.com" target="_blank">lazygyu+legal@gmail.com</a>.</p>
+      <p>If you encounter or experience copyright holder impersonation claims, please report to <a href="mailto:faithjhung+legal@gmail.com" target="_blank">faithjhung@gmail.com</a>.</p>
       <p>Thank you for using Quantum Roulette.</p>
     </div>
     <div class="notice-action">
@@ -1925,7 +1927,7 @@
 </div>
 
 <div class="copyright">
-  &copy; 2025. <a href="https://lazygyu.net" target="_blank">lazygyu</a> 
+  &copy; 2025. <a href="#" target="_blank">Faith Jhung</a> 
   <span data-trans>Quantum Roulette • Future Gaming Technology • Free for all universes</span>
 </div>
 
