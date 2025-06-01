@@ -29,6 +29,8 @@ jobs:
           yarn
           npx update-browserslist-db@latest
           yarn build
+          cp .nojekyll dist/
+          cp _headers dist/
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
