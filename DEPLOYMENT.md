@@ -9,6 +9,8 @@ Your Quantum Roulette project is now properly configured for GitHub Pages deploy
 2. **Updated Dependencies**: Refreshed browserslist database to eliminate build warnings
 3. **Built Assets**: Generated production-ready files in `/dist` folder with correct paths
 4. **GitHub Actions**: Your existing workflow file `.github/workflows/deploy.yml` is properly configured
+5. **Improved Error Handling**: Added detailed Box2D WebAssembly error reporting
+6. **Jekyll Bypass**: Added `.nojekyll` file to prevent GitHub Pages Jekyll processing
 
 ## 🛠️ GitHub Pages Setup Instructions
 
@@ -17,35 +19,75 @@ Your Quantum Roulette project is now properly configured for GitHub Pages deploy
 2. Click on **Settings** tab
 3. Scroll down to **Pages** section in the left sidebar
 4. Under **Source**, select **Deploy from a branch**
-5. Choose **gh-pages** branch (this will be created by the GitHub Action)
+5. Select branch **gh-pages** and folder **/ (root)**
 6. Click **Save**
 
-### 2. Verify Deployment
-After pushing changes to main branch:
-1. Go to **Actions** tab in your repository
-2. Wait for the "Build and Deploy" workflow to complete (green checkmark)
-3. Your site will be available at: **https://goodtreefaith.github.io/quantum-roulette/**
+### 2. Access Your Live Site
+After deployment completes (usually 2-5 minutes), your site will be available at:
+**https://goodtreefaith.github.io/quantum-roulette/**
 
-## 🔧 Technical Details
+## 🔧 Troubleshooting
 
-### Build Configuration
-```json
-"build": "parcel build index.html --public-url /quantum-roulette/"
-```
+### WebAssembly Loading Issues
+If you see the error "Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of 'video/mp2t'":
 
-### GitHub Actions Workflow
-- Automatically builds on push to `main` branch
-- Uses Yarn for dependency management
-- Deploys to `gh-pages` branch
-- Uses `peaceiris/actions-gh-pages@v4` action
+1. **Wait for DNS propagation**: GitHub Pages can take up to 10 minutes to properly serve all file types
+2. **Check browser console**: Open Developer Tools (F12) and look for specific error messages
+3. **Try different browsers**: Test in Chrome, Firefox, and Safari
+4. **Clear browser cache**: Hard refresh (Ctrl+F5 or Cmd+Shift+R)
+5. **Verify HTTPS**: Ensure you're accessing via `https://` not `http://`
 
-### Asset Paths
-All assets are correctly prefixed with `/quantum-roulette/` including:
-- Images and icons
-- JavaScript modules
-- CSS resources
-- SVG files
-- WebAssembly files
+### Canvas Not Appearing
+If the interface loads but the game canvas doesn't appear:
+
+1. **Check error modal**: The app now shows detailed error messages if WebAssembly fails
+2. **Browser compatibility**: Ensure WebAssembly is supported (most modern browsers do)
+3. **Network issues**: Check if the Box2D.wasm files are loading in Network tab
+4. **Console logs**: Look for "🔧 Initializing Box2D WebAssembly..." messages
+
+### Debug Mode
+You can access debug information by:
+1. Opening browser console (F12)
+2. Looking for colored log messages (🔧, ✅, ❌)
+3. If errors occur, an error modal will appear with detailed information
+
+## 📝 Build Process
+
+The deployment uses GitHub Actions to:
+1. Install dependencies with `yarn`
+2. Update browserslist database
+3. Build the project with Parcel
+4. Copy `.nojekyll` file to prevent Jekyll processing
+5. Deploy to `gh-pages` branch
+
+## 🌐 Alternative Deployment Options
+
+If GitHub Pages continues to have issues with WebAssembly:
+
+### Netlify (Recommended Alternative)
+1. Fork/import your repo to Netlify
+2. Build command: `yarn build`
+3. Publish directory: `dist`
+4. Netlify properly handles WASM files and MIME types
+
+### Vercel
+1. Import your GitHub repo to Vercel
+2. Framework preset: Other
+3. Build command: `yarn build`
+4. Output directory: `dist`
+
+## 🔍 Current Status
+
+- ✅ Repository configured for `/quantum-roulette/` path
+- ✅ Build process optimized
+- ✅ Jekyll processing disabled
+- ✅ Error handling improved
+- ✅ WebAssembly loading monitored
+- ⏳ Waiting for GitHub Pages WebAssembly MIME type resolution
+
+## 📞 Support
+
+If issues persist, the detailed error messages in the browser console will help identify the specific problem. The app now provides comprehensive debugging information for troubleshooting WebAssembly loading issues.
 
 ## 🎮 Features Ready for Deployment
 
