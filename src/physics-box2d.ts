@@ -14,10 +14,88 @@ export class Box2dPhysics implements IPhysics {
   private deleteCandidates: Box2D.b2Body[] = [];
 
   async init(): Promise<void> {
-    this.Box2D = await Box2DFactory();
-    this.gravity = new this.Box2D.b2Vec2(0, 10);
-    this.world = new this.Box2D.b2World(this.gravity);
-    console.log('box2d ready');
+    try {
+      console.log('🔧 Initializing Box2D WebAssembly...');
+      console.log('🌐 Current URL:', window.location.href);
+      console.log('🔍 WebAssembly support:', typeof WebAssembly === 'object');
+      
+      if (typeof WebAssembly !== 'object') {
+        throw new Error('WebAssembly is not supported in this browser');
+      }
+
+      this.Box2D = await Box2DFactory();
+      this.gravity = new this.Box2D.b2Vec2(0, 10);
+      this.world = new this.Box2D.b2World(this.gravity);
+      console.log('✅ Box2D WebAssembly initialized successfully');
+    } catch (error: unknown) {
+      console.error('❌ Failed to initialize Box2D WebAssembly:', error);
+      console.error('🔍 Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        name: error instanceof Error ? error.name : 'Unknown'
+      });
+      
+      // Show user-friendly error message
+      this.showLoadingError(error);
+      throw error;
+    }
+  }
+
+  private showLoadingError(error: unknown) {
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 68, 68, 0.95);
+      color: white;
+      padding: 2rem;
+      border-radius: 15px;
+      max-width: 500px;
+      text-align: center;
+      font-family: 'Orbitron', monospace;
+      z-index: 9999;
+      backdrop-filter: blur(10px);
+      border: 2px solid #ff4444;
+      box-shadow: 0 20px 60px rgba(255, 68, 68, 0.4);
+    `;
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    errorDiv.innerHTML = `
+      <h2 style="margin-bottom: 1rem; color: #fff;">⚠️ Quantum Engine Error</h2>
+      <p style="margin-bottom: 1rem;">The physics engine failed to initialize.</p>
+      <p style="margin-bottom: 1rem; font-size: 0.9em; opacity: 0.8;">
+        This usually happens when WebAssembly files aren't loading correctly.
+      </p>
+      <details style="text-align: left; margin-top: 1rem;">
+        <summary style="cursor: pointer; margin-bottom: 0.5rem;">Technical Details</summary>
+        <pre style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 5px; font-size: 0.8em; overflow: auto;">
+Error: ${errorMessage || 'Unknown error'}
+
+Troubleshooting:
+- Check browser console for network errors
+- Ensure WebAssembly is enabled
+- Try refreshing the page
+- Check if running on HTTPS (required for some browsers)
+        </pre>
+      </details>
+      <button onclick="window.location.reload()" style="
+        background: #ff4444;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 1rem;
+        font-family: inherit;
+      ">
+        🔄 Retry
+      </button>
+    `;
+    
+    document.body.appendChild(errorDiv);
   }
 
   clear(): void {

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Debug Test</title>
+    <style>
+        body {
+            background: #000;
+            color: #0ff;
+            font-family: monospace;
+            padding: 20px;
+        }
+        canvas {
+            border: 2px solid #0ff;
+            background: #111;
+        }
+        .debug-info {
+            margin: 20px 0;
+            padding: 10px;
+            background: #222;
+            border: 1px solid #0ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Canvas Debug Test</h1>
+    <div class="debug-info">
+        <h3>Debug Information:</h3>
+        <div id="debugOutput">Loading...</div>
+    </div>
+    
+    <div id="canvasContainer">
+        <!-- Canvas will be added here by script -->
+    </div>
+
+    <script>
+        const debugOutput = document.getElementById('debugOutput');
+        const canvasContainer = document.getElementById('canvasContainer');
+        
+        function log(message) {
+            console.log(message);
+            debugOutput.innerHTML += message + '<br>';
+        }
+        
+        function testCanvas() {
+            log('🚀 Starting canvas test...');
+            
+            try {
+                // Test basic canvas creation
+                const canvas = document.createElement('canvas');
+                canvas.width = 800;
+                canvas.height = 600;
+                canvas.style.width = '100%';
+                canvas.style.maxWidth = '800px';
+                
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    log('✅ Canvas context created successfully');
+                    
+                    // Draw test content
+                    ctx.fillStyle = '#0ff';
+                    ctx.fillRect(10, 10, 100, 100);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '20px monospace';
+                    ctx.fillText('Canvas Working!', 50, 200);
+                    
+                    canvasContainer.appendChild(canvas);
+                    log('✅ Canvas added to DOM');
+                } else {
+                    log('❌ Failed to get canvas context');
+                }
+                
+                // Test WebAssembly support
+                if (typeof WebAssembly === 'object') {
+                    log('✅ WebAssembly is supported');
+                } else {
+                    log('❌ WebAssembly is NOT supported');
+                }
+                
+                // Test if running on GitHub Pages
+                if (window.location.hostname.includes('github.io')) {
+                    log('🌐 Running on GitHub Pages');
+                } else {
+                    log('🏠 Running locally');
+                }
+                
+                log('🔍 Current URL: ' + window.location.href);
+                log('🔍 User Agent: ' + navigator.userAgent);
+                
+            } catch (error) {
+                log('❌ Error during canvas test: ' + error.message);
+                console.error(error);
+            }
+        }
+        
+        // Run test when page loads
+        window.addEventListener('DOMContentLoaded', testCanvas);
+    </script>
+</body>
+</html> 
