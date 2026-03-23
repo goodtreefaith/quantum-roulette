@@ -12,10 +12,13 @@ export function parseName(nameStr: string) {
   const countRegex = /\*(\d+)/;
   const hasWeight = weightRegex.test(nameStr);
   const hasCount = countRegex.test(nameStr);
-  const name = getRegexValue(/^\s*([^\/*]+)?/, nameStr);
+  const name = getRegexValue(/^\s*([^\/*]+)?/, nameStr).trim();
   if (!name) return null;
   const weight = hasWeight ? parseInt(getRegexValue(weightRegex, nameStr)) : 1;
   const count = hasCount ? parseInt(getRegexValue(countRegex, nameStr)) : 1;
+  if (!Number.isFinite(weight) || !Number.isFinite(count) || weight < 1 || count < 1) {
+    return null;
+  }
   return {
     name,
     weight,

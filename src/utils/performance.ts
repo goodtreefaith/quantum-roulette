@@ -1,3 +1,5 @@
+import type { GameSettings } from '../options';
+
 interface PerformanceMetrics {
   fps: number;
   averageFps: number;
@@ -9,12 +11,23 @@ interface PerformanceMetrics {
   marbleCount: number;
 }
 
+type SuggestedSettings = Pick<
+  GameSettings,
+  'performanceMode' | 'particleCount' | 'enableAnimations'
+> | null;
+
+type PerformanceWithMemory = Performance & {
+  memory?: {
+    usedJSHeapSize: number;
+  };
+};
+
 export class PerformanceMonitor {
-  private lastTime: number = 0;
-  private frameCount: number = 0;
+  private lastTime = performance.now();
+  private frameCount = 0;
   private fpsHistory: number[] = [];
-  private maxFpsHistoryLength: number = 60;
-  private performanceMetrics: PerformanceMetrics = {
+  private readonly maxFpsHistoryLength = 60;
+  private readonly performanceMetrics: PerformanceMetrics = {
     fps: 0,
     averageFps: 0,
     memoryUsed: 0,
@@ -33,7 +46,6 @@ export class PerformanceMonitor {
   }
 
   private createDisplayElements(): void {
-    // FPS Counter
     this.fpsDisplay = document.createElement('div');
     this.fpsDisplay.id = 'fps-counter';
     this.fpsDisplay.style.cssText = `
@@ -56,7 +68,6 @@ export class PerformanceMonitor {
     `;
     document.body.appendChild(this.fpsDisplay);
 
-    // Detailed Performance Display
     this.detailedDisplay = document.createElement('div');
     this.detailedDisplay.id = 'performance-details';
     this.detailedDisplay.style.cssText = `
@@ -83,43 +94,50 @@ export class PerformanceMonitor {
     return performance.now();
   }
 
-  public endFrame(startTime: number, renderStartTime?: number, updateStartTime?: number): void {
+  public endFrame(
+    frameStartTime: number,
+    renderStartTime?: number,
+    updateStartTime?: number,
+  ): void {
     const currentTime = performance.now();
     const deltaTime = currentTime - this.lastTime;
-    
-    if (deltaTime >= 1000) { // Update every second
+
+    this.frameCount++;
+    this.performanceMetrics.frameTime = currentTime - frameStartTime;
+
+    if (renderStartTime !== undefined) {
+      this.performanceMetrics.renderTime = currentTime - renderStartTime;
+    }
+
+    if (updateStartTime !== undefined && renderStartTime !== undefined) {
+      this.performanceMetrics.updateTime = renderStartTime - updateStartTime;
+    }
+
+    if (deltaTime >= 1000) {
       this.performanceMetrics.fps = this.frameCount;
       this.fpsHistory.push(this.performanceMetrics.fps);
-      
+
       if (this.fpsHistory.length > this.maxFpsHistoryLength) {
         this.fpsHistory.shift();
       }
-      
-      this.performanceMetrics.averageFps = this.fpsHistory.reduce((a, b) => a + b, 0) / this.fpsHistory.length;
-      this.performanceMetrics.frameTime = deltaTime / this.frameCount;
-      
+
+      this.performanceMetrics.averageFps =
+        this.fpsHistory.reduce((sum, value) => sum + value, 0) /
+        this.fpsHistory.length;
+
       this.frameCount = 0;
       this.lastTime = currentTime;
-      
+
       this.updateMemoryUsage();
       this.updateDisplays();
-    }
-    
-    this.frameCount++;
-    
-    if (renderStartTime) {
-      this.performanceMetrics.renderTime = currentTime - renderStartTime;
-    }
-    
-    if (updateStartTime) {
-      this.performanceMetrics.updateTime = currentTime - updateStartTime;
     }
   }
 
   private updateMemoryUsage(): void {
-    if ('memory' in performance) {
-      const memory = (performance as any).memory;
-      this.performanceMetrics.memoryUsed = memory.usedJSHeapSize / (1024 * 1024); // MB
+    const perf = performance as PerformanceWithMemory;
+    if (perf.memory) {
+      this.performanceMetrics.memoryUsed =
+        perf.memory.usedJSHeapSize / (1024 * 1024);
     }
   }
 
@@ -131,11 +149,9 @@ export class PerformanceMonitor {
   private updateDisplays(): void {
     if (this.fpsDisplay && this.fpsDisplay.style.display !== 'none') {
       const fpsColor = this.getFpsColor(this.performanceMetrics.fps);
-      this.fpsDisplay.innerHTML = `
-        <div style="color: ${fpsColor};">
-          ${Math.round(this.performanceMetrics.fps)} FPS
-        </div>
-      `;
+      this.fpsDisplay.innerHTML = `<div style="color: ${fpsColor};">${Math.round(
+        this.performanceMetrics.fps,
+      )} FPS</div>`;
     }
 
     if (this.detailedDisplay && this.detailedDisplay.style.display !== 'none') {
@@ -159,24 +175,27 @@ export class PerformanceMonitor {
   }
 
   private getFpsColor(fps: number): string {
-    if (fps >= 60) return '#00ff80'; // Green
-    if (fps >= 30) return '#ffaa00'; // Orange
-    return '#ff4444'; // Red
+    if (fps >= 60) return '#00ff80';
+    if (fps >= 30) return '#ffaa00';
+    return '#ff4444';
   }
 
   private getPerformanceAdvice(): string {
-    const { fps, averageFps, particleCount } = this.performanceMetrics;
-    
+    const { averageFps, particleCount } = this.performanceMetrics;
+
     if (averageFps < 30) {
-      return '⚠️ Low FPS: Try ECO mode';
-    } else if (averageFps < 45) {
-      return '💡 Reduce particle count for better performance';
-    } else if (averageFps > 90 && particleCount < 1000) {
-      return '✨ Performance good: Try ULTRA particles';
-    } else if (averageFps > 60) {
-      return '✅ Performance optimal';
+      return 'Low FPS: try ECO mode';
     }
-    
+    if (averageFps < 45) {
+      return 'Reduce particle count for smoother gameplay';
+    }
+    if (averageFps > 90 && particleCount < 1000) {
+      return 'Performance is strong: ULTRA particles should be safe';
+    }
+    if (averageFps > 60) {
+      return 'Performance looks healthy';
+    }
+
     return '';
   }
 
@@ -196,96 +215,96 @@ export class PerformanceMonitor {
     return { ...this.performanceMetrics };
   }
 
-  public getSuggestedSettings(): any {
+  public getSuggestedSettings(): SuggestedSettings {
     const { averageFps } = this.performanceMetrics;
-    
+
     if (averageFps < 30) {
       return {
         performanceMode: 'eco',
         particleCount: 'low',
         enableAnimations: false,
       };
-    } else if (averageFps < 45) {
+    }
+
+    if (averageFps < 45) {
       return {
         performanceMode: 'balanced',
         particleCount: 'medium',
         enableAnimations: true,
       };
-    } else if (averageFps > 90) {
+    }
+
+    if (averageFps > 90) {
       return {
         performanceMode: 'high',
         particleCount: 'ultra',
         enableAnimations: true,
       };
     }
-    
-    return null; // Current settings are fine
+
+    return null;
   }
 }
 
-// Utility functions for performance optimization
 export const PerformanceUtils = {
-  // Throttle function calls
-  throttle<T extends (...args: any[]) => any>(
-    func: T,
-    limit: number
-  ): (...args: Parameters<T>) => void {
-    let inThrottle: boolean;
-    return function(this: any, ...args: Parameters<T>) {
+  throttle<TArgs extends unknown[]>(
+    func: (...args: TArgs) => void,
+    limit: number,
+  ): (...args: TArgs) => void {
+    let inThrottle = false;
+    return (...args: TArgs) => {
       if (!inThrottle) {
-        func.apply(this, args);
+        func(...args);
         inThrottle = true;
-        setTimeout(() => inThrottle = false, limit);
+        setTimeout(() => {
+          inThrottle = false;
+        }, limit);
       }
     };
   },
 
-  // Debounce function calls
-  debounce<T extends (...args: any[]) => any>(
-    func: T,
-    delay: number
-  ): (...args: Parameters<T>) => void {
-    let timeoutId: number;
-    return function(this: any, ...args: Parameters<T>) {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(this, args), delay);
+  debounce<TArgs extends unknown[]>(
+    func: (...args: TArgs) => void,
+    delay: number,
+  ): (...args: TArgs) => void {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    return (...args: TArgs) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => func(...args), delay);
     };
   },
 
-  // Check if device prefers reduced motion
   prefersReducedMotion(): boolean {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
-  // Get device pixel ratio for optimal rendering
   getPixelRatio(): number {
-    return Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x for performance
+    return Math.min(window.devicePixelRatio || 1, 2);
   },
 
-  // Check if device is mobile
   isMobileDevice(): boolean {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    );
   },
 
-  // Get optimal update interval based on device
   getOptimalUpdateInterval(): number {
-    if (this.isMobileDevice()) {
-      return 20; // 50 FPS on mobile
-    }
-    return 16; // 60 FPS on desktop
+    return this.isMobileDevice() ? 20 : 16;
   },
 
-  // Simple object pool for performance
-  createObjectPool<T>(factory: () => T, reset: (obj: T) => void, size: number = 100) {
+  createObjectPool<T>(
+    factory: () => T,
+    reset: (obj: T) => void,
+    size = 100,
+  ) {
     const pool: T[] = [];
-    const active: Set<T> = new Set();
+    const active = new Set<T>();
 
     return {
       get(): T {
-        let obj = pool.pop();
-        if (!obj) {
-          obj = factory();
-        }
+        const obj = pool.pop() ?? factory();
         active.add(obj);
         return obj;
       },
@@ -307,7 +326,7 @@ export const PerformanceUtils = {
 
       size(): number {
         return active.size;
-      }
+      },
     };
-  }
-}; 
+  },
+};

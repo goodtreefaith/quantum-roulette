@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5899C1DJM0"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="apple-touch-icon" sizes="57x57" href="assets/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="assets/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="assets/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="assets/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="assets/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="assets/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="assets/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="assets/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+  <link rel="manifest" href="assets/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="assets/ms-icon-144x144.png">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Quantum Roulette • Future Gaming</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<script type="module" src="./src/index.ts"></script>
+<script type="text/javascript">
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+
+  gtag('js', new Date());
+  gtag('config', 'G-5899C1DJM0');
+<script type="module" src="./src/index.ts"></script>
+<script type="text/javascript">
+  window.dataLayer = window.dataLayer || [];
+
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+
+  gtag('js', new Date());
+  gtag('config', 'G-5899C1DJM0');
+
+  function getNames() {
+    const value = document.querySelector('#in_names').value.trim();
+    return value.split(/[,\r\n]/g).map(v => v.trim()).filter(v => !!v);
+  }
+
+  function parseName(nameStr) {
+    const weightRegex = /(\/\d+)/;
+    const countRegex = /(\*\d+)/;
+    const hasWeight = weightRegex.test(nameStr);
+    const hasCount = countRegex.test(nameStr);
+    const name = /^\s*([^\/*]+)?/.exec(nameStr)[1];
+    const weight = hasWeight ? parseInt(weightRegex.exec(nameStr)[1].replace('/', '')) : 1;
+    const count = hasCount ? parseInt(countRegex.exec(nameStr)[1].replace('*', '')) : 1;
+    return {
+      name,
+      weight,
+      count,
+    };
+  }
+
+  function getReady() {
+    const names = getNames();
+    window.roulette.setMarbles(names);
+    ready = names.length > 0;
+    try {
+      localStorage.setItem('mbr_names', names.join(','));
+    } catch (error) {
+      console.warn('Failed to save marble names:', error);
+    }
+    
+    // Update UI feedback
+    const startBtn = document.querySelector('#btnStart');
+    const statusIndicator = document.querySelector('.status-indicator');
+    
+    if (ready) {
+      startBtn.classList.remove('disabled');
+      statusIndicator.classList.add('active');
+      statusIndicator.classList.remove('inactive');
+    } else {
+      startBtn.classList.add('disabled');
+      statusIndicator.classList.remove('active');
+      statusIndicator.classList.add('inactive');
+    }
+    
+    switch (winnerType) {
+      case 'first':
+        setWinnerRank(1);
+        break;
+      case 'last':
+        const total = window.roulette.getCount();
+        setWinnerRank(total);
+        break;
+    }
+  }
+
+  function setWinnerRank(rank) {
+    document.querySelector('#in_winningRank').value = rank;
+    window.options.winningRank = rank - 1;
+    window.roulette.setWinningRank(window.options.winningRank);
+
+    // Update button states with smooth transitions
+    const firstBtn = document.querySelector('.btn-first-winner');
+    const lastBtn = document.querySelector('.btn-last-winner');
+    const rankInput = document.querySelector('#in_winningRank');
+
+    firstBtn.classList.remove('active');
+    lastBtn.classList.remove('active');
+    rankInput.classList.remove('active');
+
+    if (winnerType === 'first') {
+      firstBtn.classList.add('active');
+    } else if (winnerType === 'last') {
+      lastBtn.classList.add('active');
+    } else if (winnerType === 'custom') {
+      rankInput.classList.add('active');
+    }
+  }
+
+  let ready = false;
+  let winnerType = 'first';
+  let lastWinnerName = '';
+
+  // Winner management functions
+  function showWinnerModal(winnerName) {
+    console.log('📋 showWinnerModal called with:', winnerName);
+    
+    const modal = document.querySelector('#winnerModal');
+    const nameElement = document.querySelector('#winnerName');
+    
+    console.log('🔍 Modal elements check:', {
+      modal: !!modal,
+      nameElement: !!nameElement,
+      modalDisplay: modal?.style.display
+    });
+    
+    if (!modal || !nameElement) {
+      console.error('❌ Modal elements not found!');
+      return;
+    }
+    
+    lastWinnerName = winnerName;
+    nameElement.textContent = winnerName;
+    modal.style.display = 'flex';
+    console.log('🎭 Modal display set to flex, winner name set to:', winnerName);
+    
+    // Add entrance animation
+    if (window.animations) {
+      console.log('✨ Adding animations');
+      const modalContent = document.querySelector('.winner-content');
+      if (modalContent) {
+        window.animations.slideInFromTop(modalContent);
+        window.animations.success(window.innerWidth / 2, window.innerHeight / 2);
+      }
+    } else {
+      console.log('❌ No animations available');
+    }
+  }
+
+  function hideWinnerModal() {
+    console.log('🚪 Hiding winner modal...');
+    const modal = document.querySelector('#winnerModal');
+    
+    if (!modal) {
+      console.error('❌ Modal element not found when trying to hide');
+      return;
+    }
+    
+    console.log('📍 Current modal display:', modal.style.display);
+    
+    // Force hide the modal immediately
+    modal.style.display = 'none';
+    console.log('🎭 Modal hidden directly');
+    
+    // Optional: Add fade effect if animations are available and enabled
+    if (window.animations && window.options?.enableAnimations) {
+      console.log('✨ Animation system available but modal already hidden');
+    }
+  }
+
+  function removeWinnerFromList(winnerName) {
+    const currentNames = getNames();
+    const filteredNames = [];
+    
+    // Remove winner from list, handling weighted names
+    currentNames.forEach(nameStr => {
+      const parsed = parseName(nameStr);
+      if (parsed.name !== winnerName) {
+        filteredNames.push(nameStr);
+      }
+    });
+    
+    // Update the textarea
+    document.querySelector('#in_names').value = filteredNames.join(',');
+    getReady(); // Refresh the game with new names
+    
+    // Show success message
+    const successMsg = document.createElement('div');
+    successMsg.style.cssText = `
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      background: rgba(0, 255, 128, 0.2);
+      border: 1px solid #00ff80;
+      border-radius: 10px;
+      padding: 1rem;
+      color: #00ff80;
+      font-family: 'Orbitron', monospace;
+      z-index: 2002;
+      backdrop-filter: blur(10px);
+    `;
+    successMsg.textContent = `${winnerName} removed from list`;
+    document.body.appendChild(successMsg);
+    
+    setTimeout(() => {
+      if (window.animations) {
+        window.animations.fadeOut(successMsg).then(() => successMsg.remove());
+      } else {
+        successMsg.remove();
+      }
+    }, 3000);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initialize();
+  });
+
+  function initialize() {
+    if (!window.roulette || !window.roulette.isReady) {
+      console.log('Loading quantum engine...');
+      setTimeout(initialize, 100);
+      return;
+    }
+    console.log('Quantum roulette initialized');
+
+    const savedNames = localStorage.getItem('mbr_names');
+    if (savedNames) {
+      document.querySelector('#in_names').value = savedNames;
+    }
+
+    // Enhanced input handling with debouncing
+    let inputTimeout;
+    document.querySelector('#in_names').addEventListener('input', () => {
+      clearTimeout(inputTimeout);
+      inputTimeout = setTimeout(getReady, 300);
+    });
+
+    document.querySelector('#in_names').addEventListener('blur', () => {
+      const nameSource = getNames();
+      const nameSet = new Set();
+      const nameCounts = {};
+      nameSource.forEach(nameSrc => {
+        const name = parseName(nameSrc);
+        const key = name.weight > 1 ? `${name.name}/${name.weight}` : name.name;
+        if (!nameSet.has(key)) {
+          nameSet.add(key);
+          nameCounts[key] = 0;
+        }
+        nameCounts[key] += name.count;
+      });
+      const result = [];
+      Object.keys(nameCounts).forEach(key => {
+        if (nameCounts[key] > 1) {
+          result.push(`${key}*${nameCounts[key]}`);
+        } else {
+          result.push(key);
+        }
+      });
+
+      const oldValue = document.querySelector('#in_names').value;
+      const newValue = result.join(',');
+
+      if (oldValue !== newValue) {
+        document.querySelector('#in_names').value = newValue;
+        getReady();
+      }
+    });
+
+    document.querySelector('#btnShuffle').addEventListener('click', () => {
+      getReady();
+      // Add visual feedback
+      const btn = document.querySelector('#btnShuffle');
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = '', 150);
+    });
+
+    document.querySelector('#btnStart').addEventListener('click', () => {
+      if (!ready) return;
+      gtag && gtag('event', 'start', {
+        'event_category': 'roulette',
+        'event_label': 'start',
+        'value': window.roulette.getCount(),
+      });
+      window.roulette.start();
+      
+      // Minimize settings panel instead of hiding completely
+      const settingsPanel = document.querySelector('#settings');
+      settingsPanel.classList.remove('hide');
+      settingsPanel.classList.add('minimized');
+    });
+
+    // Enhanced toggle handling
+    document.querySelector('#chkAutoRecording').addEventListener('click', (e) => {
+      e.target.classList.toggle('active');
+      window.options.autoRecording = e.target.classList.contains('active');
+      window.roulette.setAutoRecording(window.options.autoRecording);
+    });
+
+    document.querySelector('#chkSkill').addEventListener('click', (e) => {
+      e.target.classList.toggle('active');
+      window.options.useSkills = e.target.classList.contains('active');
+      window.roulette.setWinningRank(window.options.winningRank);
+    });
+
+    document.querySelector('#in_winningRank').addEventListener('change', (e) => {
+      const v = parseInt(e.target.value, 10);
+      winnerType = 'custom';
+      setWinnerRank(isNaN(v) ? 0 : v);
+    });
+
+    document.querySelector('.btn-last-winner').addEventListener('click', () => {
+      const total = window.roulette.getCount();
+      winnerType = 'last';
+      setWinnerRank(total);
+    });
+
+    document.querySelector('.btn-first-winner').addEventListener('click', () => {
+      winnerType = 'first';
+      setWinnerRank(1);
+    });
+
+    document.querySelector('#btnShake').addEventListener('click', () => {
+      window.roulette.shake();
+      gtag('event', 'shake', {
+        'event_category': 'roulette',
+        'event_label': 'shake',
+        'value': 1,
+      });
+      // Enhanced shake button feedback
+      const btn = document.querySelector('#btnShake');
+      btn.style.animation = 'none';
+      btn.offsetHeight; // Trigger reflow
+      btn.style.animation = 'pulseGlow 0.5s ease-out';
+    });
+
+    window.roulette.addEventListener('goal', (e) => {
+      ready = false;
+      const winnerName = e.detail.winner;
+      
+      console.log('🏆 Goal event fired!', { 
+        winnerName, 
+        optionsAvailable: !!window.options,
+        autoRemoveWinner: window.options?.autoRemoveWinner, 
+        showWinnerModal: window.options?.showWinnerModal 
+      });
+      
+      // Check if auto-remove is enabled
+      if (window.options?.autoRemoveWinner) {
+        console.log('🗑️ Auto-removing winner:', winnerName);
+        setTimeout(() => {
+          removeWinnerFromList(winnerName);
+          document.querySelector('#settings').classList.remove('hide');
+        }, 2000);
+        return;
+      }
+      
+      // Check if winner modal should be shown (default to true if options not available)
+      const shouldShowModal = window.options?.showWinnerModal !== false;
+      if (shouldShowModal) {
+        console.log('🎉 Showing winner modal for:', winnerName);
+        setTimeout(() => {
+          showWinnerModal(winnerName);
+        }, 2000);
+      } else {
+        console.log('⏭️ Skipping modal, showing settings');
+        // Skip modal, go straight to showing settings
+        setTimeout(() => {
+          document.querySelector('#settings').classList.remove('hide');
+        }, 3000);
+      }
+      
+      // Original functionality - show settings after delay if modal is closed
+      setTimeout(() => {
+        const modal = document.querySelector('#winnerModal');
+        const settings = document.querySelector('#settings');
+        
+        if (modal && modal.style.display === 'none') {
+          // Restore settings panel to full view after game ends
+          settings.classList.remove('hide');
+          settings.classList.remove('minimized');
+        }
+      }, 5000);
+    });
+
+    window.roulette.addEventListener('shakeAvailableChanged', (e) => {
+      document.querySelector('#inGame').classList.toggle('hide', !e.detail);
+    });
+
+    document.querySelector('#btnShuffle').click();
+
+    const maps = window.roulette.getMaps();
+    const mapSelector = document.querySelector('#sltMap');
+    maps.forEach((map) => {
+      const option = document.createElement('option');
+      option.value = map.index;
+      option.innerHTML = map.title;
+      option.setAttribute('data-trans', '');
+      window.translateElement && window.translateElement(option);
+      mapSelector.append(option);
+    });
+
+    mapSelector.addEventListener('change', (e) => {
+      const index = e.target.value;
+      window.roulette.setMap(index);
+      // Add visual feedback
+      mapSelector.style.borderColor = 'var(--neon-cyan)';
+      setTimeout(() => mapSelector.style.borderColor = '', 1000);
+    });
+
+    const currentNotice = 1;
+    const noticeKey = 'lastViewedNotification';
+
+    const closeNotice = () => {
+      document.querySelector('#notice').style.display = 'none';
+      try {
+        localStorage.setItem(noticeKey, currentNotice.toString());
+      } catch (error) {
+        console.warn('Failed to save notification state:', error);
+      }
+    };
+
+    const openNotice = () => {
+      document.querySelector('#notice').style.display = 'flex';
+    };
+
+    document.querySelector('#closeNotice').addEventListener('click', closeNotice);
+    document.querySelector('#btnNotice').addEventListener('click', openNotice);
+
+    const checkNotice = () => {
+      try {
+        const lastViewed = localStorage.getItem(noticeKey);
+        if (lastViewed === null || Number(lastViewed) < currentNotice) {
+          openNotice();
+        }
+      } catch (error) {
+        console.warn('Failed to check notification state:', error);
+      }
+    };
+
+    checkNotice();
+
+    // Winner modal event listeners
+    const removeBtn = document.querySelector('#btnRemoveWinner');
+    const keepBtn = document.querySelector('#btnKeepWinner');
+    const continueBtn = document.querySelector('#btnContinue');
+
+    if (removeBtn) {
+      removeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🗑️ Remove winner button clicked');
+        
+        // Immediately hide modal
+        const modal = document.querySelector('#winnerModal');
+        if (modal) modal.style.display = 'none';
+        
+        // Execute remove action
+        if (window.animations) window.animations.buttonClick(removeBtn);
+        removeWinnerFromList(lastWinnerName);
+        
+        // Restore settings panel
+        setTimeout(() => {
+          const settings = document.querySelector('#settings');
+          if (settings) {
+            settings.classList.remove('hide');
+            settings.classList.remove('minimized');
+          }
+        }, 300);
+      });
+    } else {
+      console.error('❌ Remove winner button not found');
+    }
+
+    if (keepBtn) {
+      keepBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🔄 Keep winner button clicked');
+        
+        // Immediately hide modal
+        const modal = document.querySelector('#winnerModal');
+        if (modal) modal.style.display = 'none';
+        
+        // Execute keep action
+        if (window.animations) window.animations.buttonClick(keepBtn);
+        
+        // Restore settings panel
+        setTimeout(() => {
+          const settings = document.querySelector('#settings');
+          if (settings) {
+            settings.classList.remove('hide');
+            settings.classList.remove('minimized');
+          }
+        }, 300);
+      });
+    } else {
+      console.error('❌ Keep winner button not found');
+    }
+
+    if (continueBtn) {
+      continueBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('▶️ Continue button clicked');
+        
+        // Immediately hide modal
+        const modal = document.querySelector('#winnerModal');
+        if (modal) modal.style.display = 'none';
+        
+        // Execute continue action
+        if (window.animations) window.animations.buttonClick(continueBtn);
+        
+        // Restore settings panel
+        setTimeout(() => {
+          const settings = document.querySelector('#settings');
+          if (settings) {
+            settings.classList.remove('hide');
+            settings.classList.remove('minimized');
+          }
+        }, 300);
+      });
+    } else {
+      console.error('❌ Continue button not found');
+    }
+
+    // Allow closing modal by clicking backdrop
+    const winnerModal = document.querySelector('#winnerModal');
+    if (winnerModal) {
+      winnerModal.addEventListener('click', (e) => {
+        // Only close if clicking the backdrop (not the modal content)
+        if (e.target === winnerModal) {
+          console.log('🖱️ Modal backdrop clicked - closing modal');
+          
+          // Immediately hide modal
+          winnerModal.style.display = 'none';
+          
+          // Restore settings panel
+          setTimeout(() => {
+            const settings = document.querySelector('#settings');
+            if (settings) {
+              settings.classList.remove('hide');
+              settings.classList.remove('minimized');
+            }
+          }, 300);
+        }
+      });
+    }
+
+    // Settings panel expand/minimize functionality
+    const settingsPanel = document.querySelector('#settings');
+    const settingsHeader = document.querySelector('.settings-header');
+    
+    if (settingsHeader && settingsPanel) {
+      settingsHeader.addEventListener('click', () => {
+        if (settingsPanel.classList.contains('minimized')) {
+          console.log('📈 Expanding settings panel');
+          settingsPanel.classList.remove('minimized');
+          settingsPanel.classList.remove('hide');
+          
+          // Add entrance animation
+          if (window.animations) {
+            window.animations.slideIn(settingsPanel, 'bottom', 400);
+          }
+        }
+      });
+
+      // Add double-click to minimize when expanded during game
+      settingsHeader.addEventListener('dblclick', () => {
+        if (!settingsPanel.classList.contains('minimized') && !settingsPanel.classList.contains('hide')) {
+          console.log('📉 Minimizing settings panel');
+          settingsPanel.classList.add('minimized');
+        }
+      });
+    }
+  }
+
+  // Debug functions for testing (add to window for console access)
+  window.debugModal = {
+    show: (winnerName = 'Test Winner') => {
+      console.log('🧪 Debug: Showing winner modal');
+      showWinnerModal(winnerName);
+    },
+    hide: () => {
+      console.log('🧪 Debug: Hiding winner modal');
+      const modal = document.querySelector('#winnerModal');
+      if (modal) {
+        modal.style.display = 'none';
+        console.log('✅ Modal hidden successfully');
+      } else {
+        console.error('❌ Modal not found');
+      }
+    },
+    checkButtons: () => {
+      const buttons = ['#btnRemoveWinner', '#btnKeepWinner', '#btnContinue'];
+      buttons.forEach(selector => {
+        const btn = document.querySelector(selector);
+        console.log(`${selector}: ${btn ? '✅ Found' : '❌ Not found'}`);
+      });
+    }
+  };
+
+  // Advanced Settings Modal Management
+  function initializeAdvancedSettings() {
+    const advancedBtn = document.querySelector('#btnAdvancedSettings');
+    const advancedModal = document.querySelector('#advancedSettings');
+    const advancedBackdrop = document.querySelector('#advancedBackdrop');
+    const closeBtn = document.querySelector('#btnCloseAdvanced');
+    const resetBtn = document.querySelector('#btnResetSettings');
+
+    // Load current settings into modal
+    function loadAdvancedSettings() {
+      document.querySelector('#performanceMode').value = window.options.performanceMode;
+      document.querySelector('#particleCount').value = window.options.particleCount;
+      document.querySelector('#chkShowFPS').classList.toggle('active', window.options.showFPS);
+      document.querySelector('#chkAdvancedStats').classList.toggle('active', window.options.showAdvancedStats);
+      document.querySelector('#chkAnimations').classList.toggle('active', window.options.enableAnimations);
+      document.querySelector('#chkSoundEffects').classList.toggle('active', window.options.enableSoundEffects);
+      document.querySelector('#chkHapticFeedback').classList.toggle('active', window.options.enableHapticFeedback);
+      document.querySelector('#glowIntensity').value = window.options.glowIntensity;
+      document.querySelector('#transparency').value = window.options.transparency;
+      document.querySelector('#cameraSmoothing').value = window.options.cameraSmoothing;
+      document.querySelector('#zoomSensitivity').value = window.options.zoomSensitivity;
+      document.querySelector('#chkAutoSave').classList.toggle('active', window.options.autoSaveResults);
+      document.querySelector('#chkShowWinnerModal').classList.toggle('active', window.options.showWinnerModal);
+      document.querySelector('#chkAutoRemoveWinner').classList.toggle('active', window.options.autoRemoveWinner);
+    }
+
+    // Save settings from modal
+    function saveAdvancedSettings() {
+      window.options.performanceMode = document.querySelector('#performanceMode').value;
+      window.options.particleCount = document.querySelector('#particleCount').value;
+      window.options.showFPS = document.querySelector('#chkShowFPS').classList.contains('active');
+      window.options.showAdvancedStats = document.querySelector('#chkAdvancedStats').classList.contains('active');
+      window.options.enableAnimations = document.querySelector('#chkAnimations').classList.contains('active');
+      window.options.enableSoundEffects = document.querySelector('#chkSoundEffects').classList.contains('active');
+      window.options.enableHapticFeedback = document.querySelector('#chkHapticFeedback').classList.contains('active');
+      window.options.glowIntensity = parseFloat(document.querySelector('#glowIntensity').value);
+      window.options.transparency = parseFloat(document.querySelector('#transparency').value);
+      window.options.cameraSmoothing = parseFloat(document.querySelector('#cameraSmoothing').value);
+      window.options.zoomSensitivity = parseFloat(document.querySelector('#zoomSensitivity').value);
+      window.options.autoSaveResults = document.querySelector('#chkAutoSave').classList.contains('active');
+      window.options.showWinnerModal = document.querySelector('#chkShowWinnerModal').classList.contains('active');
+      window.options.autoRemoveWinner = document.querySelector('#chkAutoRemoveWinner').classList.contains('active');
+      
+      // Apply visual effects immediately
+      document.documentElement.style.setProperty('--transparency', window.options.transparency);
+      const glowElements = document.querySelectorAll('.holo-panel');
+      glowElements.forEach(el => {
+        el.style.filter = `brightness(${window.options.glowIntensity})`;
+      });
+
+      // Trigger particle effect
+      if (window.animations) {
+        const rect = closeBtn.getBoundingClientRect();
+        window.animations.success(rect.left + rect.width/2, rect.top + rect.height/2);
+      }
+    }
+
+    // Open modal
+    function openAdvancedSettings() {
+      loadAdvancedSettings();
+      advancedBackdrop.style.display = 'block';
+      advancedModal.style.display = 'block';
+      
+      // Animation
+      if (window.animations) {
+        window.animations.slideInFromTop(advancedModal);
+        const rect = advancedBtn.getBoundingClientRect();
+        window.animations.magic(rect.left + rect.width/2, rect.top + rect.height/2);
+      }
+    }
+
+    // Close modal
+    function closeAdvancedSettings() {
+      if (window.animations) {
+        window.animations.slideInFromTop(advancedModal).then(() => {
+          advancedBackdrop.style.display = 'none';
+          advancedModal.style.display = 'none';
+        });
+      } else {
+        advancedBackdrop.style.display = 'none';
+        advancedModal.style.display = 'none';
+      }
+    }
+
+    // Reset to defaults
+    function resetToDefaults() {
+      if (confirm('Reset all settings to quantum defaults?')) {
+        // Reset options to defaults
+        Object.assign(window.options, {
+          performanceMode: 'balanced',
+          particleCount: 'high',
+          showFPS: false,
+          showAdvancedStats: false,
+          enableAnimations: true,
+          enableSoundEffects: true,
+          enableHapticFeedback: true,
+          glowIntensity: 1.0,
+          transparency: 0.9,
+          cameraSmoothing: 0.8,
+          zoomSensitivity: 1.0,
+          autoSaveResults: true,
+          showWinnerModal: true,
+          autoRemoveWinner: true
+        });
+        
+        loadAdvancedSettings();
+        
+        if (window.animations) {
+          const rect = resetBtn.getBoundingClientRect();
+          window.animations.success(rect.left + rect.width/2, rect.top + rect.height/2);
+        }
+      }
+    }
+
+    // Event listeners
+    advancedBtn.addEventListener('click', () => {
+      if (window.animations) window.animations.buttonClick(advancedBtn);
+      openAdvancedSettings();
+    });
+
+    closeBtn.addEventListener('click', () => {
+      if (window.animations) window.animations.buttonClick(closeBtn);
+      saveAdvancedSettings();
+      closeAdvancedSettings();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      if (window.animations) window.animations.buttonClick(resetBtn);
+      resetToDefaults();
+    });
+
+    advancedBackdrop.addEventListener('click', closeAdvancedSettings);
+
+    // Toggle controls
+    const toggles = ['#chkShowFPS', '#chkAdvancedStats', '#chkAnimations', '#chkSoundEffects', '#chkHapticFeedback', '#chkAutoSave', '#chkShowWinnerModal', '#chkAutoRemoveWinner'];
+    toggles.forEach(selector => {
+      document.querySelector(selector).addEventListener('click', (e) => {
+        e.target.classList.toggle('active');
+      });
+    });
+
+    // Range sliders with live preview
+    const ranges = ['#glowIntensity', '#transparency', '#cameraSmoothing', '#zoomSensitivity'];
+    ranges.forEach(selector => {
+      document.querySelector(selector).addEventListener('input', (e) => {
+        // Live preview of changes
+        if (selector === '#transparency') {
+          document.documentElement.style.setProperty('--glass-bg', `rgba(255, 255, 255, ${e.target.value * 0.1})`);
+        } else if (selector === '#glowIntensity') {
+          const glowElements = document.querySelectorAll('.holo-panel');
+          glowElements.forEach(el => {
+            el.style.filter = `brightness(${e.target.value})`;
+          });
+        }
+      });
+    });
+  }
+
+  // Enhanced button interactions
+  function enhanceButtonInteractions() {
+    const buttons = document.querySelectorAll('.cyber-button');
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        if (window.animations) {
+          window.animations.buttonClick(button);
+        }
+      });
+
+      button.addEventListener('mouseenter', () => {
+        if (window.animations && window.options.enableAnimations) {
+          window.animations.glow(button, '#00ffff', 1000);
+        }
+      });
+    });
+
+    // Enhance toggles
+    const toggles = document.querySelectorAll('.cyber-toggle');
+    toggles.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        if (window.animations && window.options.enableAnimations) {
+          const rect = toggle.getBoundingClientRect();
+          const color = toggle.classList.contains('active') ? '#00ff80' : '#ff4444';
+          window.animations.success(rect.left + rect.width/2, rect.top + rect.height/2);
+        }
+      });
+    });
+  }
+
+  // Initialize advanced features after main initialization
+  document.addEventListener('DOMContentLoaded', () => {
+    // Wait for main initialization
+    setTimeout(() => {
+      initializeAdvancedSettings();
+      enhanceButtonInteractions();
+      
+      // Add quantum effects
+      setTimeout(() => {
+        if (window.animations && window.options.enableAnimations) {
+          const title = document.querySelector('.settings-title');
+          if (title) {
+            window.animations.glow(title, '#00ffff', 3000);
+          }
+        }
+      }, 1000);
+    }, 500);
+  });
+</script>
+
+<div id="settings" class="holo-panel">
+  <div class="settings-header">
+    <h1 class="settings-title">QUANTUM ROULETTE</h1>
+    <p class="settings-subtitle">Future Gaming Experience</p>
+    <div class="expand-hint">Click to expand settings</div>
+  </div>
+  
+  <div class="settings-content">
+    <div class="input-section">
+      <div class="input-label">
+        <span class="status-indicator inactive"></span>
+        PARTICIPANT MATRIX
+      </div>
+      <textarea 
+        id="in_names" 
+        placeholder="Enter names separated by commas or new lines..." 
+        data-trans="placeholder"
+      >Player1*5, Player2*10, Player3*3</textarea>
+      
+      <div class="action-buttons">
+        <button id="btnNotice" class="cyber-button">
+          <i class="control-icon megaphone"></i>
+          INFO
+        </button>
+        <button id="btnShuffle" class="cyber-button">
+          <i class="control-icon shuffle"></i>
+          SHUFFLE
+        </button>
+        <button id="btnStart" class="cyber-button primary">
+          <i class="control-icon play"></i>
+          INITIALIZE
+        </button>
+      </div>
+    </div>
+
+    <div class="controls-section">
+      <div class="control-group">
+        <label class="control-label">
+          <i class="control-icon map"></i>
+          ARENA MAP
+        </label>
+        <select id="sltMap" class="cyber-select"></select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">
+          <i class="control-icon record"></i>
+          AUTO RECORDING
+        </label>
+        <div id="chkAutoRecording" class="cyber-toggle"></div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">
+          <i class="control-icon trophy"></i>
+          VICTORY CONDITION
+        </label>
+        <div class="winner-buttons">
+          <button class="winner-btn btn-first-winner active" data-trans>FIRST</button>
+          <button class="winner-btn btn-last-winner" data-trans>LAST</button>
+          <input type="number" id="in_winningRank" class="winner-rank-input" value="1" min="1" />
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">
+          <i class="control-icon bomb"></i>
+          QUANTUM SKILLS
+        </label>
+        <div id="chkSkill" class="cyber-toggle active"></div>
+      </div>
+
+      <!-- Enhanced Settings Panel -->
+      <div class="control-group">
+        <button id="btnAdvancedSettings" class="cyber-button" style="width: 100%; margin-top: 1rem;">
+          ⚙️ ADVANCED QUANTUM CONFIG
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Advanced Settings Modal -->
+<div id="advancedSettings" class="holo-panel" style="
+  position: fixed;
+  top: 10vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: none;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 2rem;
+  margin-bottom: 10vh;
+">
+  <div class="settings-header">
+    <h2 class="settings-title" style="font-size: 1.5rem; margin-bottom: 1rem;">
+      QUANTUM CONFIGURATION
+    </h2>
+  </div>
+
+  <div class="advanced-settings-grid" style="display: grid; gap: 1.5rem;">
+    <!-- Performance Settings -->
+    <div class="setting-category">
+      <h3 style="color: var(--neon-cyan); margin-bottom: 1rem; font-family: 'Orbitron', monospace;">
+        🚀 PERFORMANCE
+      </h3>
+      
+      <div class="control-group">
+        <label class="control-label">PERFORMANCE MODE</label>
+        <select id="performanceMode" class="cyber-select">
+          <option value="eco">ECO (50 FPS)</option>
+          <option value="balanced" selected>BALANCED (60 FPS)</option>
+          <option value="high">HIGH (120 FPS)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">PARTICLE DENSITY</label>
+        <select id="particleCount" class="cyber-select">
+          <option value="low">LOW</option>
+          <option value="medium">MEDIUM</option>
+          <option value="high" selected>HIGH</option>
+          <option value="ultra">ULTRA</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">SHOW FPS COUNTER</label>
+        <div id="chkShowFPS" class="cyber-toggle"></div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">ADVANCED STATS</label>
+        <div id="chkAdvancedStats" class="cyber-toggle"></div>
+      </div>
+    </div>
+
+    <!-- Visual Effects -->
+    <div class="setting-category">
+      <h3 style="color: var(--neon-pink); margin-bottom: 1rem; font-family: 'Orbitron', monospace;">
+        ✨ VISUAL EFFECTS
+      </h3>
+      
+      <div class="control-group">
+        <label class="control-label">ANIMATIONS</label>
+        <div id="chkAnimations" class="cyber-toggle active"></div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">SOUND EFFECTS</label>
+        <div id="chkSoundEffects" class="cyber-toggle active"></div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">HAPTIC FEEDBACK</label>
+        <div id="chkHapticFeedback" class="cyber-toggle active"></div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">GLOW INTENSITY</label>
+        <input type="range" id="glowIntensity" min="0" max="2" step="0.1" value="1" 
+               style="width: 100%; accent-color: var(--neon-cyan);" />
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">TRANSPARENCY</label>
+        <input type="range" id="transparency" min="0.3" max="1" step="0.1" value="0.9" 
+               style="width: 100%; accent-color: var(--neon-pink);" />
+      </div>
+    </div>
+
+    <!-- Camera Settings -->
+    <div class="setting-category">
+      <h3 style="color: var(--neon-purple); margin-bottom: 1rem; font-family: 'Orbitron', monospace;">
+        📷 CAMERA
+      </h3>
+      
+      <div class="control-group">
+        <label class="control-label">SMOOTHING</label>
+        <input type="range" id="cameraSmoothing" min="0" max="1" step="0.1" value="0.8" 
+               style="width: 100%; accent-color: var(--neon-purple);" />
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">ZOOM SENSITIVITY</label>
+        <input type="range" id="zoomSensitivity" min="0.5" max="2" step="0.1" value="1" 
+               style="width: 100%; accent-color: var(--neon-green);" />
+      </div>
+    </div>
+
+    <!-- Auto-Save Settings -->
+    <div class="setting-category">
+      <h3 style="color: var(--neon-green); margin-bottom: 1rem; font-family: 'Orbitron', monospace;">
+        💾 DATA
+      </h3>
+      
+      <div class="control-group">
+        <label class="control-label">AUTO-SAVE RESULTS</label>
+        <div id="chkAutoSave" class="cyber-toggle active"></div>
+      </div>
+    </div>
+
+    <!-- Winner Management Settings -->
+    <div class="setting-category">
+      <h3 style="color: var(--neon-pink); margin-bottom: 1rem; font-family: 'Orbitron', monospace;">
+        🏆 WINNER MANAGEMENT
+      </h3>
+      
+      <div class="control-group">
+        <label class="control-label">SHOW WINNER MODAL</label>
+        <div id="chkShowWinnerModal" class="cyber-toggle active"></div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">AUTO-REMOVE WINNER</label>
+        <div id="chkAutoRemoveWinner" class="cyber-toggle"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: center;">
+    <button id="btnResetSettings" class="cyber-button">
+      🔄 RESET TO DEFAULTS
+    </button>
+    <button id="btnCloseAdvanced" class="cyber-button primary">
+      ✅ APPLY & CLOSE
+    </button>
+  </div>
+</div>
+
+<!-- Backdrop for modal -->
+<div id="advancedBackdrop" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  z-index: 1999;
+  display: none;
+"></div>
+
+<div id="inGame" class="holo-panel hide">
+  <button id="btnShake" data-trans>QUANTUM SHAKE!</button>
+</div>
+
+<div id="notice">
+  <div class="notice-content holo-panel">
+    <h1 class="notice-title">QUANTUM NOTICE</h1>
+    <div class="notice-body">
+      <p>This quantum roulette system is free and open for unlimited use.</p>
+      <p>The creator places no restrictions on usage, including broadcasts, video creation, or commercial applications. Use freely.</p>
+      <p>However, impersonating the copyright holder is a criminal violation of copyright law.</p>
+      <p>If you encounter or experience copyright holder impersonation claims, please report to <a href="mailto:faithjhung+legal@gmail.com" target="_blank">faithjhung@gmail.com</a>.</p>
+      <p>Thank you for using Quantum Roulette.</p>
+    </div>
+    <div class="notice-action">
+      <button id="closeNotice" class="cyber-button" data-trans>ACKNOWLEDGE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Winner Modal -->
+<div id="winnerModal">
+  <div class="winner-content">
+    <div class="winner-trophy">🏆</div>
+    <h1 class="winner-title">QUANTUM VICTORY!</h1>
+    <div class="winner-name" id="winnerName">Champion</div>
+    <div class="winner-message">
+      What would you like to do with the winner for the next round?
+    </div>
+    <div class="winner-actions">
+      <button id="btnRemoveWinner" class="winner-btn remove">
+        🗑️ Remove Winner
+      </button>
+      <button id="btnKeepWinner" class="winner-btn keep">
+        🔄 Keep Winner
+      </button>
+      <button id="btnContinue" class="winner-btn continue">
+        ▶️ Continue
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="copyright">
+  &copy; 2025. <a href="#" target="_blank">Faith Jhung</a> 
+  <span data-trans>Quantum Roulette • Future Gaming Technology • Free for all universes</span>
+</div>
+
+</body>
+</html>
