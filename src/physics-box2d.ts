@@ -14,10 +14,17 @@ export class Box2dPhysics implements IPhysics {
   private deleteCandidates: Box2D.b2Body[] = [];
 
   async init(): Promise<void> {
-    this.Box2D = await Box2DFactory();
-    this.gravity = new this.Box2D.b2Vec2(0, 10);
-    this.world = new this.Box2D.b2World(this.gravity);
-    console.log('box2d ready');
+    try {
+      this.Box2D = await Box2DFactory();
+      this.gravity = new this.Box2D.b2Vec2(0, 10);
+      this.world = new this.Box2D.b2World(this.gravity);
+      console.log('box2d ready');
+    } catch (error) {
+      console.error('Failed to initialize Box2D physics engine:', error);
+      throw new Error(
+        'Physics engine initialization failed. Please refresh the page and try again.'
+      );
+    }
   }
 
   clear(): void {

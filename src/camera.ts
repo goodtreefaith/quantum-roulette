@@ -9,6 +9,8 @@ export class Camera {
   private _zoom: number = 1;
   private _targetZoom: number = 1;
   private _locked = false;
+  private _smoothing = 0.8;
+  private _zoomSensitivity = 1;
 
   get zoom() {
     return this._zoom;
@@ -43,6 +45,14 @@ export class Camera {
 
   lock(v: boolean) {
     this._locked = v;
+  }
+
+  setSmoothing(value: number) {
+    this._smoothing = Math.min(1, Math.max(0, value));
+  }
+
+  setZoomSensitivity(value: number) {
+    this._zoomSensitivity = Math.min(2, Math.max(0.5, value));
   }
 
   update({
@@ -82,7 +92,8 @@ export class Camera {
       this.setPosition(targetMarble.position);
       if (needToZoom) {
         const goalDist = Math.abs(stage.zoomY - this._position.y);
-        this.zoom = Math.max(1, (1 - goalDist / zoomThreshold) * 4);
+        const zoomFactor = 1 + (1 - goalDist / zoomThreshold) * 3 * this._zoomSensitivity;
+        this.zoom = Math.max(1, zoomFactor);
       } else {
         this.zoom = 1;
       }
@@ -98,7 +109,12 @@ export class Camera {
       return target;
     }
 
-    return current + d / 10;
+    if (this._smoothing <= 0) {
+      return target;
+    }
+
+    const interpolationFactor = Math.max(0.05, this._smoothing / 8);
+    return current + d * interpolationFactor;
   }
 
   renderScene(

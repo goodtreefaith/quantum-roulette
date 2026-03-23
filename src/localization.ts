@@ -11,7 +11,7 @@ function getBrowserLocale() {
   return navigator.language.split('-')[0];
 }
 
-function translateElement(element: Element) {
+export function translateElement(element: Element) {
   if (!(element instanceof HTMLElement) || !locale) return;
 
   const prop = element.getAttribute('data-trans');
@@ -54,5 +54,4 @@ document.addEventListener('DOMContentLoaded', () => {
   setLocale(browserLocale);
 });
 
-// eslint-disable-next-line
-(window as any).translateElement = translateElement;
+window.translateElement = translateElement;

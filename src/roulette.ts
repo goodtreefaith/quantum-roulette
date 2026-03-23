@@ -15,6 +15,7 @@ import { Minimap } from './minimap';
 import { VideoRecorder } from './utils/videoRecorder';
 import { IPhysics } from './IPhysics';
 import { Box2dPhysics } from './physics-box2d';
+import type { PerformanceMonitor } from './utils/performance';
 
 export class Roulette extends EventTarget {
   private _marbles: Marble[] = [];
@@ -49,6 +50,8 @@ export class Roulette extends EventTarget {
   private _recorder!: VideoRecorder;
 
   private physics!: IPhysics;
+  private _performanceMonitor?: PerformanceMonitor;
+  private _motionSnapshot = new Map<number, { x: number; y: number }>();
 
   private _isReady: boolean = false;
   get isReady() {
@@ -78,6 +81,7 @@ export class Roulette extends EventTarget {
 
   @bound
   private _update() {
+    const frameStartTime = this._performanceMonitor?.startFrame();
     if (!this._lastTime) this._lastTime = Date.now();
     const currentTime = Date.now();
 
@@ -88,6 +92,7 @@ export class Roulette extends EventTarget {
     this._lastTime = currentTime;
 
     const interval = (this._updateInterval / 1000) * this._timeScale;
+    const updateStartTime = frameStartTime ?? performance.now();
 
     while (this._elapsed >= this._updateInterval) {
       this.physics.step(interval);
@@ -101,6 +106,8 @@ export class Roulette extends EventTarget {
     if (this._marbles.length > 1) {
       this._marbles.sort((a, b) => b.y - a.y);
     }
+
+    this._trackMotion(this._updateInterval);
 
     if (this._stage) {
       this._camera.update({
@@ -124,8 +131,57 @@ export class Roulette extends EventTarget {
       }
     }
 
-    this._render();
+    if (this._performanceMonitor && frameStartTime !== undefined) {
+      const renderStartTime = performance.now();
+      this._render();
+      this._performanceMonitor.updateCounts(
+        this._particleManager.count,
+        this._marbles.length,
+      );
+      this._performanceMonitor.endFrame(
+        frameStartTime,
+        renderStartTime,
+        updateStartTime,
+      );
+    } else {
+      this._render();
+    }
+
     window.requestAnimationFrame(this._update);
+  }
+
+  private _trackMotion(deltaTime: number) {
+    if (!this._isRunning || this._marbles.length === 0) {
+      this._motionSnapshot.clear();
+      this._noMoveDuration = 0;
+      return;
+    }
+
+    let hasMovement = false;
+
+    this._marbles.forEach((marble) => {
+      if (!marble.isActive) {
+        return;
+      }
+
+      const currentPosition = marble.position;
+      const lastPosition = this._motionSnapshot.get(marble.id);
+
+      if (lastPosition) {
+        const dx = currentPosition.x - lastPosition.x;
+        const dy = currentPosition.y - lastPosition.y;
+        if (dx * dx + dy * dy > 0.0001) {
+          hasMovement = true;
+        }
+      }
+
+      this._motionSnapshot.set(marble.id, {
+        x: currentPosition.x,
+        y: currentPosition.y,
+      });
+    });
+
+    this._noMoveDuration = hasMovement ? 0 : this._noMoveDuration + deltaTime;
   }
 
   private _updateMarbles(deltaTime: number) {
@@ -158,12 +214,18 @@ export class Roulette extends EventTarget {
           this._winnerRank === this._winners.length &&
           this._winnerRank === this._totalMarbleCount - 1
         ) {
+          const remainingMarble = this._marbles.find(
+            (candidate) => candidate.id !== marble.id,
+          );
+          if (!remainingMarble) {
+            continue;
+          }
           this.dispatchEvent(
             new CustomEvent('goal', {
-              detail: { winner: this._marbles[i + 1].name },
+              detail: { winner: remainingMarble.name },
             }),
           );
-          this._winner = this._marbles[i + 1];
+          this._winner = remainingMarble;
           this._isRunning = false;
           this._particleManager.shot(
             this._renderer.width,
@@ -192,13 +254,16 @@ export class Roulette extends EventTarget {
   private _calcTimeScale(): number {
     if (!this._stage) return 1;
     const targetIndex = this._winnerRank - this._winners.length;
+    const targetMarble = this._marbles[targetIndex];
+    if (!targetMarble) {
+      return 1;
+    }
     if (
       this._winners.length < this._winnerRank + 1 &&
       this._goalDist < zoomThreshold
     ) {
       if (
-        this._marbles[targetIndex].y >
-        this._stage.zoomY - zoomThreshold * 1.2 &&
+        targetMarble.y > this._stage.zoomY - zoomThreshold * 1.2 &&
         (this._marbles[targetIndex - 1] || this._marbles[targetIndex + 1])
       ) {
         return Math.max(0.2, this._goalDist / zoomThreshold);
@@ -277,10 +342,16 @@ export class Roulette extends EventTarget {
 
   private _loadMap() {
     if (!this._stage) {
+      console.error('No map has been selected');
       throw new Error('No map has been selected');
     }
 
-    this.physics.createStage(this._stage);
+    try {
+      this.physics.createStage(this._stage);
+    } catch (error) {
+      console.error('Failed to load map:', error);
+      throw new Error('Failed to load map. Please try selecting a different map.');
+    }
   }
 
   public clearMarbles() {
@@ -288,11 +359,16 @@ export class Roulette extends EventTarget {
     this._winner = null;
     this._winners = [];
     this._marbles = [];
+    this._motionSnapshot.clear();
   }
 
   public start() {
     this._isRunning = true;
     this._winnerRank = options.winningRank;
+    this._winner = null;
+    this._winners = [];
+    this._noMoveDuration = 0;
+    this._motionSnapshot.clear();
     if (this._winnerRank >= this._marbles.length) {
       this._winnerRank = this._marbles.length - 1;
     }
@@ -324,6 +400,23 @@ export class Roulette extends EventTarget {
 
   public setAutoRecording(value: boolean) {
     this._autoRecording = value;
+  }
+
+  public setUpdateInterval(value: number) {
+    this._updateInterval = Math.max(8, value);
+  }
+
+  public setParticleMultiplier(value: number) {
+    this._particleManager.setDensityMultiplier(value);
+  }
+
+  public setCameraSettings(smoothing: number, zoomSensitivity: number) {
+    this._camera.setSmoothing(smoothing);
+    this._camera.setZoomSensitivity(zoomSensitivity);
+  }
+
+  public setPerformanceMonitor(monitor: PerformanceMonitor) {
+    this._performanceMonitor = monitor;
   }
 
   public setMarbles(names: string[]) {
@@ -387,6 +480,8 @@ export class Roulette extends EventTarget {
     this._clearMap();
     this._loadMap();
     this._goalDist = Infinity;
+    this._isRunning = false;
+    this._changeShakeAvailable(false);
   }
 
   public getCount() {
@@ -404,6 +499,15 @@ export class Roulette extends EventTarget {
 
   public shake() {
     if (!this._shakeAvailable) return;
+
+    this._marbles.forEach((marble) => {
+      if (marble.isActive) {
+        this.physics.shakeMarble(marble.id);
+      }
+    });
+
+    this._noMoveDuration = 0;
+    this._changeShakeAvailable(false);
   }
 
   public getMaps() {

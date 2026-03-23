@@ -18,9 +18,9 @@
     "typescript-eslint": "^8.15.0"
   },
   "scripts": {
-    "lint": "eslint --fix src/**/*.ts",
-    "dev": "parcel index.html --port 1235",
-    "build": "parcel build index.html --public-url /quantum-roulette/"
+    "lint": "eslint \"src/**/*.ts\"",
+    "dev": "node ./node_modules/parcel/lib/cli.js index.html --port 1235",
+    "build": "node ./node_modules/parcel/lib/cli.js build index.html --public-url /quantum-roulette/"
   },
   "dependencies": {
     "box2d-wasm": "^7.0.0"

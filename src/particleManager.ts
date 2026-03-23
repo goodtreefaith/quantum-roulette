@@ -2,6 +2,15 @@ import { Particle } from './particle';
 
 export class ParticleManager {
   private _particles: Particle[] = [];
+  private _densityMultiplier = 1;
+
+  get count() {
+    return this._particles.length;
+  }
+
+  setDensityMultiplier(multiplier: number) {
+    this._densityMultiplier = Math.max(0.25, multiplier);
+  }
 
   update(deltaTime: number) {
     this._particles.forEach((particle) => {
@@ -15,7 +24,8 @@ export class ParticleManager {
   }
 
   shot(x: number, y: number) {
-    for (let i = 0; i < 200; i++) {
+    const particleCount = Math.max(25, Math.round(200 * this._densityMultiplier));
+    for (let i = 0; i < particleCount; i++) {
       this._particles.push(new Particle(x, y));
     }
   }

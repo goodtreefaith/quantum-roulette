@@ -101,7 +101,7 @@ npm run dev
 - `window.options` - Access game settings
 - `window.performance` - Performance metrics
 - `window.animations` - Animation utilities
-- `window.roullete` - Main game instance
+- `window.roulette` - Main game instance
 
 ## 🔧 Development
 

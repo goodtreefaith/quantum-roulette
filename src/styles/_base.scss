@@ -1,0 +1,49 @@
+// Base Styles & Reset
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Exo 2', sans-serif;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 50%, #16213e 100%);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Animated background elements */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(128, 0, 255, 0.05) 0%, transparent 50%);
+  animation: backgroundShift 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes backgroundShift {
+  0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+  33% { transform: translateX(-20px) translateY(-10px) rotate(0.5deg); }
+  66% { transform: translateX(20px) translateY(10px) rotate(-0.5deg); }
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  box-shadow:
+    inset 0 0 50px rgba(0, 255, 255, 0.1),
+    0 0 100px rgba(0, 255, 255, 0.2);
+}
