@@ -1005,7 +1005,8 @@ canvas {
   #settings[data-mobile-sheet-state="closed"] {
     left: auto;
     right: 0.75rem;
-    bottom: calc(0.75rem + var(--safe-bottom));
+    top: calc(0.75rem + var(--safe-top));
+    bottom: auto;
     width: min(13rem, calc(100vw - 1.5rem));
     max-width: 13rem;
     padding: 0.8rem;
