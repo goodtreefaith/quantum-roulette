@@ -20,7 +20,7 @@
   "scripts": {
     "lint": "eslint \"src/**/*.ts\"",
     "dev": "node ./node_modules/parcel/lib/cli.js index.html --port 1235",
-    "build": "node ./node_modules/parcel/lib/cli.js build index.html --public-url /quantum-roulette/"
+    "build": "node ./node_modules/parcel/lib/cli.js build index.html --public-url ./"
   },
   "dependencies": {
     "box2d-wasm": "^7.0.0"
