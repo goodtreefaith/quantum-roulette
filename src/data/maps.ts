@@ -3079,10 +3079,10 @@ export const stages: StageDef[] = [
   },
   {
     title: 'Philippine Flag',
-    goalY: 98,
-    zoomY: 92,
+    goalY: 124,
+    zoomY: 114,
     entities: [
-      // Outer rails centered on the actual marble spawn band
+      // Outer banner rails centered on the actual marble spawn band
       {
         type: 'static',
         position: { x: 0, y: 0 },
@@ -3096,9 +3096,11 @@ export const stages: StageDef[] = [
             [8.4, 16],
             [7.8, 24],
             [7.8, 70],
-            [9.1, 82],
-            [11.3, 94],
-            [11.3, 98.5],
+            [8.4, 82],
+            [9.1, 94],
+            [10.1, 106],
+            [11.8, 119],
+            [11.8, 124.5],
           ],
         },
       },
@@ -3115,9 +3117,11 @@ export const stages: StageDef[] = [
             [17.6, 16],
             [18.2, 24],
             [18.2, 70],
-            [16.9, 82],
-            [14.7, 94],
-            [14.7, 98.5],
+            [17.6, 82],
+            [16.9, 94],
+            [15.9, 106],
+            [14.2, 119],
+            [14.2, 124.5],
           ],
         },
       },
@@ -3141,11 +3145,11 @@ export const stages: StageDef[] = [
       // Blue and red flag fields as vertical framing rails
       {
         type: 'static',
-        position: { x: 9.25, y: 54 },
+        position: { x: 9.25, y: 60 },
         shape: {
           type: 'box',
           width: 0.16,
-          height: 18,
+          height: 25,
           rotation: 0,
           color: '#0038a8',
           bloomColor: '#1d4ed8',
@@ -3154,11 +3158,11 @@ export const stages: StageDef[] = [
       },
       {
         type: 'static',
-        position: { x: 10.0, y: 54 },
+        position: { x: 10.0, y: 60 },
         shape: {
           type: 'box',
           width: 0.16,
-          height: 18,
+          height: 25,
           rotation: 0,
           color: '#2563eb',
           bloomColor: '#60a5fa',
@@ -3167,11 +3171,11 @@ export const stages: StageDef[] = [
       },
       {
         type: 'static',
-        position: { x: 16.0, y: 54 },
+        position: { x: 16.0, y: 60 },
         shape: {
           type: 'box',
           width: 0.16,
-          height: 18,
+          height: 25,
           rotation: 0,
           color: '#ef4444',
           bloomColor: '#f87171',
@@ -3180,18 +3184,18 @@ export const stages: StageDef[] = [
       },
       {
         type: 'static',
-        position: { x: 16.75, y: 54 },
+        position: { x: 16.75, y: 60 },
         shape: {
           type: 'box',
           width: 0.16,
-          height: 18,
+          height: 25,
           rotation: 0,
           color: '#ce1126',
           bloomColor: '#ef4444',
         },
         props: { density: 1, angularVelocity: 0, restitution: 0.05 },
       },
-      // Inner split rails that open two clean descent lanes
+      // Inner split rails that create two longer descent lanes
       {
         type: 'static',
         position: { x: 0, y: 0 },
@@ -3202,9 +3206,11 @@ export const stages: StageDef[] = [
           color: '#7dd3fc',
           points: [
             [10.1, 36.5],
-            [10.1, 58],
-            [11.2, 72],
-            [12.2, 82],
+            [9.9, 54],
+            [10.6, 70],
+            [11.2, 84],
+            [10.8, 97],
+            [11.6, 109],
           ],
         },
       },
@@ -3218,13 +3224,15 @@ export const stages: StageDef[] = [
           color: '#fca5a5',
           points: [
             [15.9, 36.5],
-            [15.9, 58],
-            [14.8, 72],
-            [13.8, 82],
+            [16.1, 54],
+            [15.4, 70],
+            [14.8, 84],
+            [15.2, 97],
+            [14.4, 109],
           ],
         },
       },
-      // Lane deflectors
+      // Upper lane deflectors
       {
         type: 'static',
         position: { x: 10.8, y: 49 },
@@ -3269,6 +3277,30 @@ export const stages: StageDef[] = [
           width: 1.25,
           height: 0.12,
           rotation: 0.28,
+          color: '#fca5a5',
+        },
+        props: { density: 1, angularVelocity: 0, restitution: 0.12 },
+      },
+      {
+        type: 'static',
+        position: { x: 11.3, y: 79 },
+        shape: {
+          type: 'box',
+          width: 1.45,
+          height: 0.12,
+          rotation: 0.26,
+          color: '#93c5fd',
+        },
+        props: { density: 1, angularVelocity: 0, restitution: 0.12 },
+      },
+      {
+        type: 'static',
+        position: { x: 14.7, y: 79 },
+        shape: {
+          type: 'box',
+          width: 1.45,
+          height: 0.12,
+          rotation: -0.26,
           color: '#fca5a5',
         },
         props: { density: 1, angularVelocity: 0, restitution: 0.12 },
@@ -3346,7 +3378,7 @@ export const stages: StageDef[] = [
       },
       {
         type: 'static',
-        position: { x: 13, y: 75.2 },
+        position: { x: 13, y: 88 },
         shape: {
           type: 'circle',
           radius: 0.26,
@@ -3355,42 +3387,89 @@ export const stages: StageDef[] = [
         },
         props: { density: 1, angularVelocity: 0, restitution: 1.08 },
       },
-      // Lower convergence guides
+      // Lower banner gauntlet to slow the finish without trapping marbles
       {
         type: 'static',
-        position: { x: 12.2, y: 86 },
+        position: { x: 12.3, y: 94 },
         shape: {
           type: 'box',
-          width: 1.0,
+          width: 1.35,
           height: 0.12,
-          rotation: 0.4,
+          rotation: 0.42,
           color: '#ffffff',
         },
-        props: { density: 1, angularVelocity: 0, restitution: 0.08 },
+        props: { density: 1, angularVelocity: 0, restitution: 0.1 },
       },
       {
         type: 'static',
-        position: { x: 13.8, y: 86 },
+        position: { x: 13.7, y: 99.5 },
         shape: {
           type: 'box',
-          width: 1.0,
+          width: 1.35,
           height: 0.12,
-          rotation: -0.4,
+          rotation: -0.42,
           color: '#ffffff',
         },
-        props: { density: 1, angularVelocity: 0, restitution: 0.08 },
+        props: { density: 1, angularVelocity: 0, restitution: 0.1 },
       },
-      // Final centered balancing element before the goal
       {
         type: 'static',
-        position: { x: 13, y: 91.5 },
+        position: { x: 11.9, y: 105.5 },
+        shape: {
+          type: 'box',
+          width: 1.25,
+          height: 0.12,
+          rotation: -0.34,
+          color: '#ffffff',
+        },
+        props: { density: 1, angularVelocity: 0, restitution: 0.1 },
+      },
+      {
+        type: 'static',
+        position: { x: 14.1, y: 111.5 },
+        shape: {
+          type: 'box',
+          width: 1.25,
+          height: 0.12,
+          rotation: 0.34,
+          color: '#ffffff',
+        },
+        props: { density: 1, angularVelocity: 0, restitution: 0.1 },
+      },
+      {
+        type: 'static',
+        position: { x: 13, y: 116.5 },
         shape: {
           type: 'circle',
-          radius: 0.28,
+          radius: 0.34,
           color: '#fcd116',
           bloomColor: '#fde047',
         },
-        props: { density: 1, angularVelocity: 0, restitution: 0.95 },
+        props: { density: 1, angularVelocity: 0, restitution: 1.02 },
+      },
+      {
+        type: 'static',
+        position: { x: 12.4, y: 120.5 },
+        shape: {
+          type: 'box',
+          width: 0.95,
+          height: 0.12,
+          rotation: 0.28,
+          color: '#ffffff',
+        },
+        props: { density: 1, angularVelocity: 0, restitution: 0.08 },
+      },
+      {
+        type: 'static',
+        position: { x: 13.6, y: 122.2 },
+        shape: {
+          type: 'box',
+          width: 0.95,
+          height: 0.12,
+          rotation: -0.28,
+          color: '#ffffff',
+        },
+        props: { density: 1, angularVelocity: 0, restitution: 0.08 },
       },
     ],
   },
