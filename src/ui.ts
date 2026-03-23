@@ -14,10 +14,13 @@ const CURRENT_NOTICE = 1;
 const ANALYTICS_ID = 'G-5899C1DJM0';
 
 type WinnerType = 'first' | 'last' | 'custom';
+type MobileSheetState = 'closed' | 'half' | 'full';
 
 type AppElements = {
+  body: HTMLBodyElement;
   settingsPanel: HTMLElement;
   settingsHeader: HTMLElement;
+  mobileSheetSummary: HTMLElement;
   namesInput: HTMLTextAreaElement;
   participantSummary: HTMLElement;
   participantValidation: HTMLElement;
@@ -25,6 +28,8 @@ type AppElements = {
   btnNotice: HTMLButtonElement;
   btnShuffle: HTMLButtonElement;
   btnStart: HTMLButtonElement;
+  btnStartMobile: HTMLButtonElement;
+  btnSheetState: HTMLButtonElement;
   mapSelector: HTMLSelectElement;
   autoRecordingToggle: HTMLInputElement;
   skillToggle: HTMLInputElement;
@@ -147,11 +152,14 @@ class RouletteUIController {
   private readonly roulette: Roulette;
   private readonly performanceMonitor: PerformanceMonitor;
   private readonly refreshParticipantsDebounced: () => void;
+  private readonly mobileMediaQuery = window.matchMedia('(max-width: 768px)');
 
   private ready = false;
   private winnerType: WinnerType = 'first';
   private lastWinnerName = '';
   private lastFocusedElement: HTMLElement | null = null;
+  private mobileSheetState: MobileSheetState = 'half';
+  private isGameRunning = false;
 
   constructor(
     roulette: Roulette,
@@ -175,6 +183,7 @@ class RouletteUIController {
     this.applySettingsToRuntime();
     this.bindEvents();
     this.refreshParticipants();
+    this.syncResponsiveMode();
     this.updateNoticeVisibility();
     this.updateSettingsHeaderState();
   }
@@ -187,6 +196,8 @@ class RouletteUIController {
       btnNotice,
       closeNotice,
       mapSelector,
+      btnStartMobile,
+      btnSheetState,
       autoRecordingToggle,
       skillToggle,
       rankInput,
@@ -236,14 +247,11 @@ class RouletteUIController {
     });
 
     btnStart.addEventListener('click', () => {
-      if (!this.ready) {
-        return;
-      }
+      this.handleStart(btnStart);
+    });
 
-      this.trackEvent('start', this.roulette.getCount());
-      this.roulette.start();
-      this.minimizeSettingsPanel();
-      this.animateButton(btnStart);
+    btnStartMobile.addEventListener('click', () => {
+      this.handleStart(btnStartMobile);
     });
 
     btnNotice.addEventListener('click', () => {
@@ -300,16 +308,18 @@ class RouletteUIController {
     });
 
     settingsHeader.addEventListener('click', () => {
-      this.elements.settingsPanel.classList.toggle('minimized');
-      this.updateSettingsHeaderState();
+      this.handleSheetHeaderAction();
     });
 
     settingsHeader.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        this.elements.settingsPanel.classList.toggle('minimized');
-        this.updateSettingsHeaderState();
+        this.handleSheetHeaderAction();
       }
+    });
+
+    btnSheetState.addEventListener('click', () => {
+      this.advanceMobileSheetState();
     });
 
     advancedButton.addEventListener('click', () => {
@@ -407,6 +417,26 @@ class RouletteUIController {
         this.closeNotice();
       }
     });
+
+    this.mobileMediaQuery.addEventListener('change', () => {
+      this.syncResponsiveMode();
+    });
+  }
+
+  private handleStart(button: HTMLButtonElement): void {
+    if (!this.ready) {
+      if (this.isMobileLayout()) {
+        this.setMobileSheetState('half');
+      }
+      return;
+    }
+
+    this.trackEvent('start', this.roulette.getCount());
+    this.isGameRunning = true;
+    this.elements.body.classList.add('game-running');
+    this.roulette.start();
+    this.minimizeSettingsPanel();
+    this.animateButton(button);
   }
 
   private loadSavedNames(): void {
@@ -532,11 +562,19 @@ class RouletteUIController {
     this.elements.participantSummary.textContent = hasParticipants
       ? `${parsed.entries.length} entries • ${totalParticipants} marbles ready`
       : 'No participants ready yet';
+    this.elements.mobileSheetSummary.textContent = hasErrors
+      ? 'Fix participant syntax to continue'
+      : this.elements.participantSummary.textContent;
 
     this.ready = hasParticipants && !hasErrors;
     this.elements.btnStart.disabled = !this.ready;
+    this.elements.btnStartMobile.disabled = !this.ready;
     this.elements.statusIndicator.classList.toggle('active', this.ready);
     this.elements.statusIndicator.classList.toggle('inactive', !this.ready);
+
+    if (!this.ready && this.isMobileLayout() && !this.isGameRunning) {
+      this.setMobileSheetState('half');
+    }
 
     safeLocalStorageSet(NAMES_STORAGE_KEY, this.elements.namesInput.value.trim());
 
@@ -600,8 +638,11 @@ class RouletteUIController {
 
   private handleGoal(winnerName: string): void {
     this.ready = false;
+    this.isGameRunning = false;
+    this.elements.body.classList.remove('game-running');
     this.lastWinnerName = winnerName;
     this.elements.btnStart.disabled = true;
+    this.elements.btnStartMobile.disabled = true;
 
     window.setTimeout(() => {
       if (options.autoRemoveWinner) {
@@ -656,24 +697,37 @@ class RouletteUIController {
   }
 
   private minimizeSettingsPanel(): void {
+    if (this.isMobileLayout()) {
+      this.setMobileSheetState('closed');
+      return;
+    }
+
     this.elements.settingsPanel.classList.add('minimized');
     this.updateSettingsHeaderState();
   }
 
   private restoreSettingsPanel(): void {
     this.elements.settingsPanel.classList.remove('hide');
+    if (this.isMobileLayout()) {
+      this.setMobileSheetState('half');
+      return;
+    }
+
     this.elements.settingsPanel.classList.remove('minimized');
     this.updateSettingsHeaderState();
   }
 
   private updateSettingsHeaderState(): void {
-    const isExpanded = !this.elements.settingsPanel.classList.contains('minimized');
+    const isExpanded = this.isMobileLayout()
+      ? this.mobileSheetState !== 'closed'
+      : !this.elements.settingsPanel.classList.contains('minimized');
     this.elements.settingsHeader.setAttribute('aria-expanded', String(isExpanded));
   }
 
   private openAdvancedSettings(): void {
     this.captureFocus();
     this.applySettingsToControls();
+    this.setOverlayOpen(true);
     setHidden(this.elements.advancedBackdrop, false);
     setHidden(this.elements.advancedModal, false);
     this.elements.closeAdvancedButton.focus();
@@ -682,6 +736,7 @@ class RouletteUIController {
   private closeAdvancedSettings(): void {
     this.applySettingsToControls();
     this.applySettingsToRuntime();
+    this.setOverlayOpen(false);
     setHidden(this.elements.advancedBackdrop, true);
     setHidden(this.elements.advancedModal, true);
     this.restoreFocus();
@@ -689,23 +744,27 @@ class RouletteUIController {
 
   private openWinnerModal(winnerName: string): void {
     this.captureFocus();
+    this.setOverlayOpen(true);
     this.elements.winnerName.textContent = winnerName;
     setHidden(this.elements.winnerModal, false, 'flex');
     this.elements.removeWinnerButton.focus();
   }
 
   private closeWinnerModal(): void {
+    this.setOverlayOpen(false);
     setHidden(this.elements.winnerModal, true, 'flex');
     this.restoreFocus();
   }
 
   private openNotice(): void {
     this.captureFocus();
+    this.setOverlayOpen(true);
     setHidden(this.elements.notice, false, 'flex');
     this.elements.closeNotice.focus();
   }
 
   private closeNotice(): void {
+    this.setOverlayOpen(false);
     setHidden(this.elements.notice, true, 'flex');
     safeLocalStorageSet(NOTICE_STORAGE_KEY, String(CURRENT_NOTICE));
     this.restoreFocus();
@@ -748,12 +807,93 @@ class RouletteUIController {
     this.lastFocusedElement?.focus();
     this.lastFocusedElement = null;
   }
+
+  private isMobileLayout(): boolean {
+    return this.mobileMediaQuery.matches;
+  }
+
+  private syncResponsiveMode(): void {
+    const isMobile = this.isMobileLayout();
+    this.elements.body.classList.toggle('mobile-layout', isMobile);
+
+    if (isMobile) {
+      this.elements.settingsPanel.classList.remove('minimized');
+      this.setMobileSheetState(this.isGameRunning ? 'closed' : 'half');
+      return;
+    }
+
+    delete this.elements.settingsPanel.dataset.mobileSheetState;
+    this.elements.settingsPanel.classList.remove('minimized');
+    this.elements.body.classList.remove('overlay-open');
+    this.elements.btnSheetState.textContent = 'More';
+    this.updateSettingsHeaderState();
+  }
+
+  private handleSheetHeaderAction(): void {
+    if (!this.isMobileLayout()) {
+      this.elements.settingsPanel.classList.toggle('minimized');
+      this.updateSettingsHeaderState();
+      return;
+    }
+
+    if (this.mobileSheetState === 'closed') {
+      this.setMobileSheetState('half');
+      return;
+    }
+
+    if (this.mobileSheetState === 'full') {
+      this.setMobileSheetState('half');
+      return;
+    }
+
+    this.setMobileSheetState('closed');
+  }
+
+  private advanceMobileSheetState(): void {
+    if (!this.isMobileLayout()) {
+      return;
+    }
+
+    if (this.mobileSheetState === 'closed') {
+      this.setMobileSheetState('half');
+      return;
+    }
+
+    if (this.mobileSheetState === 'half') {
+      this.setMobileSheetState('full');
+      return;
+    }
+
+    this.setMobileSheetState('half');
+  }
+
+  private setMobileSheetState(state: MobileSheetState): void {
+    this.mobileSheetState = state;
+    this.elements.settingsPanel.dataset.mobileSheetState = state;
+    this.elements.btnSheetState.textContent =
+      state === 'closed' ? 'Open' : state === 'half' ? 'More' : 'Done';
+    this.elements.btnSheetState.setAttribute(
+      'aria-label',
+      state === 'closed'
+        ? 'Open mobile controls'
+        : state === 'half'
+          ? 'Show more mobile controls'
+          : 'Return to the main mobile controls',
+    );
+    this.updateSettingsHeaderState();
+  }
+
+  private setOverlayOpen(open: boolean): void {
+    this.elements.body.classList.toggle('overlay-open', open);
+  }
 }
 
 function getAppElements(): AppElements {
   return {
+    body: document.body as HTMLBodyElement,
     settingsPanel: requireElement<HTMLElement>('#settings'),
     settingsHeader: requireElement<HTMLElement>('.settings-header'),
+    mobileSheetSummary: requireElement<HTMLElement>('#mobileSheetSummary'),
     namesInput: requireElement<HTMLTextAreaElement>('#in_names'),
     participantSummary: requireElement<HTMLElement>('#participantSummary'),
     participantValidation: requireElement<HTMLElement>('#participantValidation'),
@@ -761,6 +901,8 @@ function getAppElements(): AppElements {
     btnNotice: requireElement<HTMLButtonElement>('#btnNotice'),
     btnShuffle: requireElement<HTMLButtonElement>('#btnShuffle'),
     btnStart: requireElement<HTMLButtonElement>('#btnStart'),
+    btnStartMobile: requireElement<HTMLButtonElement>('#btnStartMobile'),
+    btnSheetState: requireElement<HTMLButtonElement>('#btnSheetState'),
     mapSelector: requireElement<HTMLSelectElement>('#sltMap'),
     autoRecordingToggle: requireElement<HTMLInputElement>('#chkAutoRecording'),
     skillToggle: requireElement<HTMLInputElement>('#chkSkill'),

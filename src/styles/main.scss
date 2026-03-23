@@ -19,6 +19,8 @@
   --warning: #ffaa00;
   --error: #ff4444;
   --panel-brightness: 1;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 
 // ==================================================
@@ -37,6 +39,10 @@ body {
   color: var(--text-primary);
   overflow-x: hidden;
   min-height: 100vh;
+}
+
+body.overlay-open {
+  overflow: hidden;
 }
 
 /* Animated background elements */
@@ -194,6 +200,12 @@ canvas {
   display: block;
 }
 
+.sheet-handle,
+.mobile-sheet-summary-row,
+.mobile-sheet-actions {
+  display: none;
+}
+
 .settings-header {
   appearance: none;
   width: 100%;
@@ -277,6 +289,12 @@ canvas {
 .input-validation {
   color: var(--warning);
   min-height: 1.2rem;
+}
+
+.mobile-sheet-summary {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .input-label {
@@ -392,6 +410,11 @@ canvas {
 .settings-launch {
   width: 100%;
   margin-top: 1rem;
+}
+
+.mobile-sheet-toggle,
+.mobile-sheet-start {
+  min-width: 0;
 }
 
 // ==================================================
@@ -948,52 +971,235 @@ canvas {
 // ==================================================
 
 @media (max-width: 768px) {
+  canvas {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   #settings {
-    left: 1rem;
-    right: 1rem;
-    bottom: 1rem;
-    padding: 1.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 24px 24px 0 0;
+    border-bottom: none;
+    background: rgba(6, 10, 20, 0.92);
+    backdrop-filter: blur(24px);
+    overflow: hidden;
+    transition:
+      transform 0.35s ease,
+      height 0.35s ease,
+      max-height 0.35s ease,
+      opacity 0.25s ease;
+    height: auto;
+    max-height: calc(92dvh - var(--safe-top));
   }
 
-  .settings-content {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  #settings[data-mobile-sheet-state="closed"] {
+    max-height: calc(10.5rem + var(--safe-bottom));
   }
 
-  .controls-section {
-    min-width: auto;
+  #settings[data-mobile-sheet-state="half"] {
+    max-height: min(68dvh, 42rem);
+  }
+
+  #settings[data-mobile-sheet-state="full"] {
+    max-height: min(88dvh, 56rem);
+  }
+
+  .sheet-handle {
+    display: block;
+    width: 48px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.35);
+    margin: 0 auto 0.85rem;
+  }
+
+  .settings-header {
+    padding: 0.9rem 1rem 0.4rem;
+    margin-bottom: 0;
   }
 
   .settings-title {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
+    margin-bottom: 0.2rem;
   }
 
-  #inGame {
-    top: 1rem;
-    right: 1rem;
+  .settings-subtitle {
+    font-size: 0.72rem;
+    letter-spacing: 1.3px;
+  }
+
+  .expand-hint {
+    display: block;
+    margin-top: 0.4rem;
+  }
+
+  .mobile-sheet-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0 1rem 0.75rem;
+  }
+
+  .settings-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 0 1rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  #settings[data-mobile-sheet-state="closed"] .settings-content {
+    display: none;
+  }
+
+  #settings[data-mobile-sheet-state="half"] .mobile-full-only {
+    display: none;
+  }
+
+  .input-section,
+  .controls-section {
+    min-width: auto;
+    gap: 1rem;
   }
 
   .action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  #settings[data-mobile-sheet-state="half"] .action-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  #btnStart {
+    display: none;
+  }
+
+  .cyber-button,
+  .winner-buttons .winner-btn,
+  .winner-rank-input,
+  .cyber-select,
+  .cyber-toggle,
+  #btnShake {
+    min-height: 44px;
+  }
+
+  .control-group {
+    gap: 0.6rem;
+  }
+
+  .control-label {
+    justify-content: space-between;
+    font-size: 0.8rem;
+  }
+
+  .toggle-field {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .winner-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .winner-rank-input {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .mobile-sheet-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem calc(0.9rem + var(--safe-bottom));
+    background: linear-gradient(180deg, rgba(10, 12, 22, 0), rgba(10, 12, 22, 0.96) 26%);
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+  }
+
+  .mobile-sheet-toggle {
+    flex: 0 0 auto;
+    min-width: 92px;
+  }
+
+  .mobile-sheet-start {
+    flex: 1 1 auto;
+  }
+
+  #inGame {
+    top: auto;
+    left: 1rem;
+    right: 1rem;
+    bottom: calc(var(--safe-bottom) + 9.75rem);
+    z-index: 1002;
+  }
+
+  #settings[data-mobile-sheet-state="half"] ~ #inGame {
+    bottom: calc(var(--safe-bottom) + 23rem);
+  }
+
+  #settings[data-mobile-sheet-state="full"] ~ #inGame {
+    bottom: calc(var(--safe-bottom) + 31rem);
+  }
+
+  #btnShake {
+    width: 100%;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    padding: 0.95rem 1.2rem;
+  }
+
+  #notice,
+  #winnerModal {
+    align-items: flex-end;
+    padding: 1rem 1rem calc(1rem + var(--safe-bottom));
+  }
+
+  .notice-content,
+  .winner-content {
+    width: 100%;
+    max-width: none;
+    max-height: min(82dvh, 42rem);
+    overflow-y: auto;
+    border-radius: 24px;
+  }
+
+  #advancedSettings {
+    top: auto !important;
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    bottom: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: min(88dvh, 54rem) !important;
+    margin-bottom: 0 !important;
+    padding: 1.2rem 1rem calc(1.1rem + var(--safe-bottom)) !important;
+    transform: none !important;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .modal-actions {
     flex-direction: column;
   }
 
-  /* Advanced settings modal responsive */
-  #advancedSettings {
-    top: 5vh !important;
-    left: 5% !important;
-    right: 5% !important;
-    width: 90% !important;
-    max-width: none !important;
-    transform: none !important;
-    max-height: 85vh !important;
-    margin-bottom: 5vh !important;
-  }
-
-  /* Winner modal responsive */
-  .winner-content {
-    margin: 1rem;
-    padding: 2rem;
-    max-width: none;
+  .modal-actions .cyber-button,
+  .winner-actions .winner-btn,
+  .notice-action .cyber-button {
+    width: 100%;
   }
 
   .winner-trophy {
@@ -1017,9 +1223,32 @@ canvas {
     min-width: auto;
     width: 100%;
   }
+
+  .toast-message {
+    top: auto;
+    right: 1rem;
+    left: 1rem;
+    bottom: calc(var(--safe-bottom) + 1rem);
+  }
+
+  .copyright {
+    display: none;
+  }
+
+  .cyber-button:hover,
+  .winner-actions .winner-btn:hover,
+  #btnShake:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 @media (max-width: 480px) {
+  #settings {
+    left: 0;
+    right: 0;
+  }
+
   .settings-content {
     gap: 1rem;
   }
@@ -1034,15 +1263,12 @@ canvas {
     gap: 1rem;
   }
 
-  /* Advanced settings modal for very small screens */
   #advancedSettings {
-    top: 2vh !important;
-    left: 2% !important;
-    right: 2% !important;
-    width: 96% !important;
-    padding: 1rem !important;
-    max-height: 90vh !important;
-    margin-bottom: 2vh !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: auto !important;
+    padding: 1rem 0.9rem calc(1rem + var(--safe-bottom)) !important;
+    max-height: 90dvh !important;
   }
 
   .advanced-settings-grid {
@@ -1052,5 +1278,23 @@ canvas {
   .setting-category h3 {
     font-size: 0.9rem !important;
     margin-bottom: 0.5rem !important;
+  }
+
+  .mobile-sheet-actions {
+    padding-inline: 0.9rem;
+  }
+
+  .mobile-sheet-summary-row {
+    padding-inline: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) and (max-height: 740px) {
+  #settings[data-mobile-sheet-state="half"] {
+    max-height: min(72dvh, 36rem);
+  }
+
+  #settings[data-mobile-sheet-state="full"] {
+    max-height: min(92dvh, 48rem);
   }
 }

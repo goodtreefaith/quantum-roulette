@@ -29,9 +29,14 @@
 
 <div id="settings" class="holo-panel">
   <div class="settings-header" role="button" tabindex="0" aria-expanded="true">
+    <div class="sheet-handle" aria-hidden="true"></div>
     <h1 class="settings-title">QUANTUM ROULETTE</h1>
     <p class="settings-subtitle">Future Gaming Experience</p>
     <div class="expand-hint">Press to expand or collapse settings</div>
+  </div>
+
+  <div class="mobile-sheet-summary-row">
+    <p id="mobileSheetSummary" class="mobile-sheet-summary">No participants ready yet</p>
   </div>
 
   <div class="settings-content">
@@ -50,7 +55,7 @@
       <p id="participantValidation" class="input-validation" aria-live="polite"></p>
 
       <div class="action-buttons">
-        <button type="button" id="btnNotice" class="cyber-button">
+        <button type="button" id="btnNotice" class="cyber-button mobile-full-only">
           <i class="control-icon megaphone"></i>
           INFO
         </button>
@@ -74,7 +79,7 @@
         <select id="sltMap" class="cyber-select"></select>
       </div>
 
-      <div class="control-group">
+      <div class="control-group mobile-full-only">
         <label class="control-label" for="chkAutoRecording">
           <i class="control-icon record"></i>
           AUTO RECORDING
@@ -109,12 +114,22 @@
         </label>
       </div>
 
-      <div class="control-group">
+      <div class="control-group mobile-full-only">
         <button type="button" id="btnAdvancedSettings" class="cyber-button settings-launch">
           ADVANCED QUANTUM CONFIG
         </button>
+        <p class="control-help">Advanced controls stay tucked away on mobile so setup stays fast.</p>
       </div>
     </div>
+  </div>
+
+  <div class="mobile-sheet-actions">
+    <button type="button" id="btnSheetState" class="cyber-button mobile-sheet-toggle">
+      More
+    </button>
+    <button type="button" id="btnStartMobile" class="cyber-button primary mobile-sheet-start" disabled>
+      INITIALIZE
+    </button>
   </div>
 </div>
 
