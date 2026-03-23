@@ -430,13 +430,13 @@ canvas {
   mask-size: contain;
 }
 
-.control-icon.map { mask-image: url('assets/images/map.svg'); }
-.control-icon.record { mask-image: url('assets/images/record.svg'); }
-.control-icon.trophy { mask-image: url('assets/images/trophy.svg'); }
-.control-icon.bomb { mask-image: url('assets/images/bomb.svg'); }
-.control-icon.megaphone { mask-image: url('assets/images/megaphone.svg'); }
-.control-icon.shuffle { mask-image: url('assets/images/shuffle.svg'); }
-.control-icon.play { mask-image: url('assets/images/play.svg'); }
+.control-icon.map { mask-image: url('../../assets/images/map.svg'); }
+.control-icon.record { mask-image: url('../../assets/images/record.svg'); }
+.control-icon.trophy { mask-image: url('../../assets/images/trophy.svg'); }
+.control-icon.bomb { mask-image: url('../../assets/images/bomb.svg'); }
+.control-icon.megaphone { mask-image: url('../../assets/images/megaphone.svg'); }
+.control-icon.shuffle { mask-image: url('../../assets/images/shuffle.svg'); }
+.control-icon.play { mask-image: url('../../assets/images/play.svg'); }
 
 /* Custom select */
 .cyber-select {
