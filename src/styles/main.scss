@@ -1003,7 +1003,21 @@ canvas {
   }
 
   #settings[data-mobile-sheet-state="closed"] {
-    max-height: calc(10.5rem + var(--safe-bottom));
+    left: auto;
+    right: 0.75rem;
+    bottom: calc(0.75rem + var(--safe-bottom));
+    width: min(13rem, calc(100vw - 1.5rem));
+    max-width: 13rem;
+    padding: 0.8rem;
+    border-radius: 18px;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(3, 8, 18, 0.88);
+    backdrop-filter: blur(18px);
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.38),
+      0 0 24px rgba(0, 255, 255, 0.12);
+    max-height: none;
+    overflow: hidden;
   }
 
   #settings[data-mobile-sheet-state="half"] {
@@ -1064,6 +1078,32 @@ canvas {
 
   #settings[data-mobile-sheet-state="closed"] .settings-content {
     display: none;
+  }
+
+  #settings[data-mobile-sheet-state="closed"] .sheet-handle,
+  #settings[data-mobile-sheet-state="closed"] .mobile-sheet-summary-row {
+    display: none;
+  }
+
+  #settings[data-mobile-sheet-state="closed"] .settings-header {
+    padding: 0;
+    margin-bottom: 0.65rem;
+  }
+
+  #settings[data-mobile-sheet-state="closed"] .settings-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+  }
+
+  #settings[data-mobile-sheet-state="closed"] .settings-subtitle {
+    font-size: 0.58rem;
+    letter-spacing: 1px;
+  }
+
+  #settings[data-mobile-sheet-state="closed"] .expand-hint {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.58rem;
   }
 
   #settings[data-mobile-sheet-state="half"] .mobile-full-only {
@@ -1135,6 +1175,22 @@ canvas {
     flex-shrink: 0;
   }
 
+  #settings[data-mobile-sheet-state="closed"] .mobile-sheet-actions {
+    position: static;
+    padding: 0;
+    background: none;
+  }
+
+  #settings[data-mobile-sheet-state="closed"] .mobile-sheet-start {
+    display: none;
+  }
+
+  #settings[data-mobile-sheet-state="closed"] .mobile-sheet-toggle {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
   .mobile-sheet-toggle {
     flex: 0 0 auto;
     min-width: 92px;
@@ -1150,6 +1206,10 @@ canvas {
     right: 1rem;
     bottom: calc(var(--safe-bottom) + 9.75rem);
     z-index: 1002;
+  }
+
+  #settings[data-mobile-sheet-state="closed"] ~ #inGame {
+    bottom: calc(var(--safe-bottom) + 6rem);
   }
 
   #settings[data-mobile-sheet-state="half"] ~ #inGame {
