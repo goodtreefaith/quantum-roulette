@@ -1052,11 +1052,13 @@ canvas {
     grid-template-columns: 1fr;
     gap: 1rem;
     align-items: start;
-    padding: 0 1rem;
+    padding: 0 1rem calc(7.5rem + var(--safe-bottom));
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 
   #settings[data-mobile-sheet-state="closed"] .settings-content {
@@ -1129,6 +1131,7 @@ canvas {
     position: sticky;
     bottom: 0;
     z-index: 2;
+    flex-shrink: 0;
   }
 
   .mobile-sheet-toggle {
@@ -1251,6 +1254,7 @@ canvas {
 
   .settings-content {
     gap: 1rem;
+    padding-bottom: calc(7rem + var(--safe-bottom));
   }
 
   .cyber-button {
