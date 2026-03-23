@@ -988,7 +988,11 @@ canvas {
     border-bottom: none;
     background: rgba(6, 10, 20, 0.92);
     backdrop-filter: blur(24px);
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
     transition:
       transform 0.35s ease,
       height 0.35s ease,
@@ -1053,12 +1057,9 @@ canvas {
     gap: 1rem;
     align-items: start;
     padding: 0 1rem calc(7.5rem + var(--safe-bottom));
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
   }
 
   #settings[data-mobile-sheet-state="closed"] .settings-content {
