@@ -22,7 +22,7 @@
     "accessibility"
   ],
   "devDependencies": {
-    "@parcel/packager-raw-url": "^2.13.3",
+    "@parcel/packager-raw-url": "^2.16.4",
     "@parcel/transformer-sass": "^2.13.3",
     "@parcel/transformer-webmanifest": "^2.13.3",
     "eslint": "^9.15.0",
