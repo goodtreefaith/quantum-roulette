@@ -1,7 +1,26 @@
 {
-  "name": "roulette",
+  "name": "quantum-roulette",
   "version": "1.0.0",
+  "description": "Open-source TypeScript raffle and roulette simulator with weighted entries, Canvas rendering, and a live browser demo.",
   "license": "MIT",
+  "homepage": "https://rafflefaith.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/goodtreefaith/quantum-roulette.git"
+  },
+  "bugs": {
+    "url": "https://github.com/goodtreefaith/quantum-roulette/issues"
+  },
+  "keywords": [
+    "raffle",
+    "roulette",
+    "random-picker",
+    "weighted-random",
+    "typescript",
+    "canvas",
+    "browser-game",
+    "accessibility"
+  ],
   "devDependencies": {
     "@parcel/packager-raw-url": "^2.13.3",
     "@parcel/transformer-sass": "^2.13.3",

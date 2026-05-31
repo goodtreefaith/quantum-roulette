@@ -1,164 +1,123 @@
-# 🌟 Quantum Roulette • Future Gaming Experience
+# Quantum Roulette
 
-A futuristic marble roulette game with stunning holographic UI, advanced performance monitoring, and extensive customization options.
+Quantum Roulette is an open-source TypeScript raffle and roulette simulator for running visual drawings in a browser. It supports weighted entries, multiple winner modes, map selection, recording, saved settings, and performance-aware Canvas rendering.
 
-## ✨ New Features & Improvements
+Live demo: https://rafflefaith.vercel.app/
 
-### 🎨 Futuristic UI Design
-- **Holographic Glass-morphism**: Translucent panels with blur effects
-- **Neon Cyberpunk Theme**: Cyan, pink, and purple color scheme
-- **Animated Backgrounds**: Flowing gradients and particle effects
-- **Smooth Transitions**: 60fps animations with cubic-bezier easing
-- **Responsive Design**: Optimized for all screen sizes
+## Project Status
 
-### ⚡ Performance Enhancements
-- **Real-time FPS Monitoring**: Track performance with live metrics
-- **Adaptive Performance Modes**: 
-  - ECO (50 FPS) - Battery saving
-  - BALANCED (60 FPS) - Default experience  
-  - HIGH (120 FPS) - Maximum performance
-- **Smart Particle Management**: Dynamic particle count based on performance
-- **Memory Usage Tracking**: Monitor JavaScript heap usage
-- **Performance Suggestions**: Auto-recommendations for optimal settings
+Quantum Roulette is actively maintained as a public MIT-licensed project. Current maintenance work focuses on:
 
-### 🎮 Quality of Life Improvements
-- **Auto-Save Settings**: Persistent user preferences
-- **Advanced Configuration Panel**: Comprehensive settings management
-- **Interactive Animations**: Button ripples, hover effects, particle bursts
-- **Enhanced Accessibility**: Better contrast, reduced motion support
-- **Debounced Input Handling**: Smooth text input without lag
-- **Visual Feedback**: Status indicators and progress animations
+- Safer participant parsing and input validation
+- Accessibility for keyboard and reduced-motion users
+- Automated lint/build checks
+- Release notes and first stable public release preparation
+- Dependency review and browser compatibility
 
-### 🎯 Gaming Features
-- **Quantum Skills System**: Enhanced marble abilities
-- **Multiple Victory Conditions**: First, last, or custom rank winners
-- **Auto-Recording**: Capture gameplay automatically
-- **Map Selection**: Choose from multiple arena layouts
-- **Shake Mechanics**: Interactive marble physics
+## Use Cases
 
-## 🚀 Getting Started
+- Community raffles and giveaways
+- Classroom or event drawings
+- Stream overlays and visual random selection
+- Browser-game experiments with Canvas and Box2D physics
+- TypeScript examples for interactive simulation and UI state
+
+## Features
+
+- Weighted participant entries such as `Alice*5`
+- Bias-style participant entries such as `Team A/2`
+- First, last, and custom-rank winner modes
+- Multiple arena maps
+- Video recording
+- Saved names and settings
+- Performance modes for lower-powered devices
+- Reduced-motion and accessibility improvements in progress
+
+## Getting Started
 
 ### Prerequisites
-- Node.js 16+ 
-- Yarn package manager
 
-### Installation
+- Node.js 16 or newer
+- Yarn 1.x
+
+### Install
+
 ```bash
-# Clone the repository
-git clone [repository-url]
-cd roulette-main
-
-# Install dependencies with Yarn (recommended)
+git clone https://github.com/goodtreefaith/quantum-roulette.git
+cd quantum-roulette
 yarn install
+```
 
-# Start development server
+### Run Locally
+
+```bash
 yarn dev
 ```
 
-### Alternative: NPM Installation
+The development server runs on `http://localhost:1235`.
+
+### Build
+
 ```bash
-# If you prefer npm (may have compatibility issues)
-npm install
-npm run dev
-```
-## ⚙️ Advanced Configuration
-
-### Performance Settings
-- **Performance Mode**: Choose between ECO, BALANCED, or HIGH
-- **Particle Density**: LOW, MEDIUM, HIGH, or ULTRA particle counts
-- **FPS Counter**: Real-time performance monitoring
-- **Advanced Stats**: Detailed performance metrics
-
-### Visual Effects
-- **Animations**: Toggle smooth UI transitions
-- **Sound Effects**: Audio feedback (when implemented)
-- **Haptic Feedback**: Controller vibration support
-- **Glow Intensity**: Adjust neon effect brightness (0-2x)
-- **Transparency**: UI panel opacity control (0.3-1.0)
-
-### Camera Controls
-- **Smoothing**: Camera movement interpolation (0-1)
-- **Zoom Sensitivity**: Mouse wheel responsiveness (0.5-2x)
-
-### Data Management
-- **Auto-Save Results**: Persistent game history
-- **Settings Backup**: Automatic preference storage
-
-## 🎨 Customization
-
-### CSS Variables
-```css
-:root {
-  --neon-cyan: #00ffff;
-  --neon-pink: #ff0080;
-  --neon-purple: #8000ff;
-  --neon-blue: #0080ff;
-  --neon-green: #00ff80;
-}
+yarn build
 ```
 
-### Console Commands
-- `window.options` - Access game settings
-- `window.performance` - Performance metrics
-- `window.animations` - Animation utilities
-- `window.roulette` - Main game instance
+### Lint
 
-## 🔧 Development
-
-### Project Structure
-```
-src/
-├── index.ts              # Main entry point
-├── roulette.ts           # Core game logic
-├── options.ts            # Enhanced settings management
-├── utils/
-│   ├── performance.ts    # Performance monitoring
-│   └── animations.ts     # Animation system
-├── data/                 # Game data and constants
-└── types/               # TypeScript definitions
+```bash
+yarn lint
 ```
 
-### Key Technologies
-- **TypeScript**: Type-safe development
-- **Parcel**: Zero-config bundling
-- **Canvas API**: High-performance rendering
-- **Web Animations API**: Smooth transitions
-- **CSS Grid/Flexbox**: Responsive layouts
+## Usage
 
-## 🎯 Usage Instructions
+1. Enter participant names separated by commas or new lines.
+2. Choose a map and winner condition.
+3. Start the simulation.
+4. Use shake controls during gameplay if marbles stall.
+5. Keep or remove winners between rounds.
 
-1. **Enter Participants**: Add names in the text area (comma or line separated)
-2. **Configure Settings**: Choose map, recording, winner conditions
-3. **Advanced Options**: Click "ADVANCED QUANTUM CONFIG" for detailed settings
-4. **Start Simulation**: Click "INITIALIZE" to begin the roulette
-5. **Interact**: Use "QUANTUM SHAKE" during gameplay for physics effects
+Participant examples:
 
-### Name Format Examples
-```
+```text
 Alice, Bob, Charlie
-Player1*5, Player2*10, Player3*3    # With probability weights
-Team A/2, Team B/3                   # With bias factors
+Player1*5, Player2*10, Player3*3
+Team A/2, Team B/3
 ```
 
-## 🔮 Future Enhancements
+## Repository Structure
 
-- Sound effects and audio feedback
-- Multiplayer support
-- Custom particle effects
-- VR/AR compatibility
-- Mobile app version
-- Tournament mode
+```text
+src/
+  index.ts              Main entry point
+  roulette.ts           Core game flow
+  options.ts            Settings and persistence
+  utils/participants.ts Participant parsing helpers
+  utils/performance.ts  Runtime performance monitor
+  data/                 Maps, labels, and constants
+  styles/               SCSS styles
+```
 
-## 📱 Browser Support
+## Maintainer Workflow
 
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+This repository uses public issues to track validation, accessibility, test coverage, CI, and release-readiness work. New contributions should include a clear description, test notes, and screenshots or recordings for user-facing changes.
 
-## 📄 License
+Before opening a pull request, run:
 
-MIT License - Free for all universes
+```bash
+yarn lint
+yarn build
+```
 
----
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [SECURITY.md](SECURITY.md) for vulnerability reporting.
 
+## Roadmap
+
+- Add focused tests for participant parsing and weighted entries
+- Expand keyboard navigation and reduced-motion support
+- Improve validation and escaping for user-provided names
+- Publish first stable release notes
+- Keep dependency and build tooling current
+
+## License
+
+MIT

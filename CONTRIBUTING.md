@@ -25,19 +25,27 @@ You can help by:
 
 ### Install
 
-bash yarn install 
+```bash
+yarn install
+```
 
 ### Run locally
 
-bash yarn dev 
+```bash
+yarn dev
+```
 
 ### Build
 
-bash yarn build 
+```bash
+yarn build
+```
 
 ### Lint
 
-bash yarn lint 
+```bash
+yarn lint
+```
 
 ## Before Opening a Pull Request
 

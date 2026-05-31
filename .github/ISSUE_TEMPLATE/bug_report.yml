@@ -1,0 +1,46 @@
+name: Bug report
+description: Report a reproducible problem in Quantum Roulette.
+title: "Bug: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the steps needed to reproduce the issue.
+      placeholder: |
+        1. Open the demo
+        2. Enter participants
+        3. Start the simulation
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: "Chrome 125 on macOS, Safari on iPhone, etc."
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or recordings
+      description: Drag in screenshots, recordings, or console output if useful.
