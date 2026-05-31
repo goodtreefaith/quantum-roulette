@@ -47,14 +47,27 @@ yarn build
 yarn lint
 ```
 
+### Typecheck and test
+
+```bash
+yarn typecheck
+yarn test
+```
+
+### Full local check
+
+```bash
+yarn verify
+```
+
 ## Before Opening a Pull Request
 
 Please make sure that:
 
 1. The project installs successfully.
 2. The development server runs without errors.
-3. yarn lint passes or any remaining warnings are clearly explained.
-4. yarn build completes successfully.
+3. `yarn verify` passes or any remaining warnings are clearly explained.
+4. The build completes successfully.
 5. The change is documented when it affects user-facing behavior.
 
 ## Issue Guidelines

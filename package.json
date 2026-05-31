@@ -1,6 +1,6 @@
 {
   "name": "quantum-roulette",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Open-source TypeScript raffle and roulette simulator with weighted entries, Canvas rendering, and a live browser demo.",
   "license": "MIT",
   "homepage": "https://rafflefaith.vercel.app/",
@@ -34,10 +34,14 @@
     "process": "^0.11.10",
     "svgo": "^3",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.15.0"
+    "typescript-eslint": "^8.15.0",
+    "vitest": "2.1.9"
   },
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
+    "test": "vitest run",
+    "verify": "yarn typecheck && yarn lint && yarn test && yarn build",
     "dev": "node ./node_modules/parcel/lib/cli.js index.html --port 1235",
     "build": "node ./node_modules/parcel/lib/cli.js build index.html --public-url ./"
   },

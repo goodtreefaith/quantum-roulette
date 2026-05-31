@@ -9,5 +9,5 @@ export default typescriptEslint.config(
     rules: {
       '@typescript-eslint/no-unsafe-function-type': 'off',
     },
-  }
+  },
 );

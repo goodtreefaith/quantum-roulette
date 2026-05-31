@@ -551,7 +551,7 @@ class RouletteUIController {
 
     if (hasErrors) {
       this.elements.participantValidation.textContent =
-        'Check weighted/count syntax. Every entry must use positive numbers.';
+        'Check participant names and weighted/count syntax. Numbers must be 1-1000.';
     } else if (!hasParticipants) {
       this.elements.participantValidation.textContent =
         'Add at least one participant to start the roulette.';

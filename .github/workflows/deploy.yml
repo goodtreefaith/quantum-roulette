@@ -36,7 +36,7 @@ jobs:
       - name: build
         run: |
           yarn install --frozen-lockfile
-          yarn build
+          yarn verify
           cp .nojekyll dist/
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4

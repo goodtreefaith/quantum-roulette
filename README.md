@@ -10,9 +10,9 @@ Quantum Roulette is actively maintained as a public MIT-licensed project. Curren
 
 - Safer participant parsing and input validation
 - Accessibility for keyboard and reduced-motion users
-- Automated lint/build checks
+- Automated typecheck, lint, test, and build checks
 - Release notes and first stable public release preparation
-- Dependency review and browser compatibility
+- Dependency review through Dependabot and browser compatibility checks
 
 ## Use Cases
 
@@ -32,6 +32,8 @@ Quantum Roulette is actively maintained as a public MIT-licensed project. Curren
 - Saved names and settings
 - Performance modes for lower-powered devices
 - Reduced-motion and accessibility improvements in progress
+
+Participant names reject unsafe control characters and angle brackets. Weight and count values must be whole numbers from 1 to 1000.
 
 ## Getting Started
 
@@ -104,17 +106,16 @@ This repository uses public issues to track validation, accessibility, test cove
 Before opening a pull request, run:
 
 ```bash
-yarn lint
-yarn build
+yarn verify
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [SECURITY.md](SECURITY.md) for vulnerability reporting.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines, [SECURITY.md](SECURITY.md) for vulnerability reporting, [SUPPORT.md](SUPPORT.md) for support scope, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for project behavior expectations.
 
 ## Roadmap
 
-- Add focused tests for participant parsing and weighted entries
 - Expand keyboard navigation and reduced-motion support
-- Improve validation and escaping for user-provided names
+- Expand tests beyond participant parsing into UI state and winner flows
+- Continue hardening validation for user-provided names
 - Publish first stable release notes
 - Keep dependency and build tooling current
 

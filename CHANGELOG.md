@@ -1,6 +1,13 @@
 # Changelog
 
 - 2026-05-31:
+    - Publish `v0.1.1` as a maintenance hardening release.
+    - Add participant parser tests for weighted entries, duplicate normalization, winner removal, and malformed input.
+    - Add `typecheck`, `test`, and `verify` scripts and run them in CI.
+    - Harden participant parsing against malformed modifiers, control characters, angle brackets, and excessive weight/count values.
+    - Add Dependabot configuration for npm and GitHub Actions updates.
+    - Add `CODE_OF_CONDUCT.md` and `SUPPORT.md`.
+- 2026-05-31:
     - Publish `v0.1.0` as the first public maintainer release.
     - Add open-source maintenance metadata, repository topics, and package metadata.
     - Add `SECURITY.md`, `CONTRIBUTING.md`, issue templates, pull request template, and `CODEOWNERS`.
