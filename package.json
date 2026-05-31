@@ -1,6 +1,6 @@
 {
   "name": "quantum-roulette",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Open-source TypeScript raffle and roulette simulator with weighted entries, Canvas rendering, and a live browser demo.",
   "license": "MIT",
   "homepage": "https://rafflefaith.vercel.app/",

@@ -1,5 +1,12 @@
 # Changelog
 
+- 2026-05-31:
+    - Publish `v0.1.0` as the first public maintainer release.
+    - Add open-source maintenance metadata, repository topics, and package metadata.
+    - Add `SECURITY.md`, `CONTRIBUTING.md`, issue templates, pull request template, and `CODEOWNERS`.
+    - Add passing GitHub Actions CI for lint/build checks.
+    - Fix GitHub Pages deployment permissions and modernize workflow actions.
+    - Document current roadmap work for input validation, accessibility, tests, dependency review, and release hardening.
 - 2024-05-22:
     - Replace the physics engine to [box2d-wasm](https://github.com/Birch-san/box2d-wasm) for improving the performance.
 - 2024-02-19:
@@ -31,4 +38,3 @@
     - Now you can adjust the game speed.
 - 2023-05-29:
     - Now you can shake the game if the marbles are being stuck for more than 3 seconds.
-
